@@ -1,0 +1,8 @@
+{
+  "name": "b2",
+  "version": "0.1.0",
+  "description": "AI-powered static website builder. From blank folder to published site.",
+  "author": {
+    "name": "Bo Frese"
+  }
+}
