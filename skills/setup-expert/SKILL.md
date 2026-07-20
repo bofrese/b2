@@ -56,9 +56,17 @@ Note: if `BASE_PATH` is not `/`, setup will patch all absolute nav hrefs in `hea
 
 ---
 
+## Step 2b — Site URL
+
+Ask the user: "What's the live URL for this site? (e.g., `https://example.com`, no trailing slash) Leave blank if you don't know it yet — you can add it later."
+
+Store the answer as `SITE_URL=` (empty string if skipped). This is what the build injects into canonical URLs, `og:url`, and the sitemap — every page needs it, not just the SEO pass.
+
+---
+
 ## Step 3 — Update b2.cfg
 
-Read `website/b2.cfg`. It should already exist and contain a `THEME=` line written by `/b2:design`. Add or update only `BUILD_TOOL` and `BASE_PATH` — do not change the `THEME=` line.
+Read `website/b2.cfg`. It should already exist and contain a `THEME=` line written by `/b2:design`. Add or update only `BUILD_TOOL`, `BASE_PATH`, and `SITE_URL` — do not change the `THEME=` line.
 
 Write the complete file preserving all existing keys:
 
@@ -66,6 +74,7 @@ Write the complete file preserving all existing keys:
 THEME={value from existing b2.cfg}
 BUILD_TOOL={make|scripts}
 BASE_PATH={/|/subpath}
+SITE_URL={https://example.com|empty}
 ```
 
 **If `website/b2.cfg` does not exist** (design was skipped or b2.cfg was deleted): write the full file with `THEME=b2` as fallback, and warn the user: "b2.cfg was missing — created with THEME=b2. If your theme folder has a different name, update THEME in website/b2.cfg."

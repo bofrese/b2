@@ -1,29 +1,46 @@
 #!/usr/bin/env python3
 """
-selfhost-fonts.py — Download Google Fonts as self-hosted woff2 (latin subset only).
+selfhost-fonts.py — Download CDN-hosted webfonts as self-hosted woff2 (latin
+subset only where the provider splits by subset).
 
-Reads header.html, finds the Google Fonts CDN <link>, downloads the Latin-subset
-woff2 files, generates @font-face CSS with font-display: swap, and prepends it to
-styles.css (both theme and dist copies).
+Detects ANY external font-CDN stylesheet in header.html, not just Google
+Fonts — a design can easily load two or three foundries at once (e.g. Google
+Fonts for body text, Fontshare/Adobe Fonts/Bunny Fonts for display headings),
+and a fix that only handles one leaves the others as an invisible render-
+blocking cost that "looks handled" because a similar-looking fix already ran.
+Detection works by fetching each external <link rel="stylesheet"> and checking
+whether the response contains @font-face — provider-agnostic, no per-CDN
+special-casing needed.
+
+Note on variable fonts: modern Google Fonts responses often serve ONE woff2
+file covering an entire weight range, with several @font-face blocks (one per
+discrete weight) all pointing at that same file. This is standard, correct
+variable-font technique — browsers instantiate the right weight from the
+file's axis — not a bug. Don't "fix" it into separate per-weight downloads.
+
+Reads header.html, downloads the font files, generates @font-face CSS with
+font-display: swap, prepends it to styles.css (theme + dist copies), and
+patches header.html directly: removes the CDN <link>/<preconnect> tags, adds
+preload tags for the base (400, non-italic) weight of each family.
 
 Usage:
   python3 selfhost-fonts.py audit                   # detect and report, no writes
-  python3 selfhost-fonts.py fix THEME               # download + patch CSS
+  python3 selfhost-fonts.py fix THEME               # download + patch CSS + patch header.html
 
 THEME defaults to value from website/b2.cfg if not passed.
 
 Output format:
-  DETECTED:google_fonts:{url}
-  DETECTED:no_google_fonts
+  DETECTED:font_cdn:{url}
+  DETECTED:no_font_cdn
   FONT_FILE:{local_path}:{size_kb}KB
   FONT_FACE_BLOCK:{family}:{style}:{weight}
   PATCHED:styles:{path}
-  PATCH_HEADER:remove:{line}
-  PATCH_HEADER:add_preload:{link_tag}
+  PATCHED:header:{path}
   DONE:summary:{n_files} font files downloaded:{n_faces} @font-face blocks generated
 """
 
 import re, sys, os, urllib.request
+from urllib.parse import urlparse
 
 OG_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
          "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -46,11 +63,20 @@ def get_theme(argv):
     return theme
 
 
-def find_google_fonts_url(header_path):
+def find_stylesheet_links(header_path):
+    """Return every external (https://) <link rel="stylesheet" href="..."> in
+    header.html, regardless of attribute order. Provider-agnostic — callers
+    fetch each and check for @font-face to decide which are font CDNs."""
     with open(header_path) as f:
         content = f.read()
-    m = re.search(r'<link[^>]+href="(https://fonts\.googleapis\.com/css2[^"]+)"', content)
-    return m.group(1) if m else None
+    hrefs = set()
+    for tag in re.findall(r"<link\s[^>]*>", content):
+        if "stylesheet" not in tag:
+            continue
+        m = re.search(r'href="(https?://[^"]+)"', tag)
+        if m:
+            hrefs.add(m.group(1))
+    return sorted(hrefs)
 
 
 def fetch_css(url):
@@ -59,31 +85,43 @@ def fetch_css(url):
         return r.read().decode("utf-8")
 
 
-def parse_latin_blocks(css):
-    """Return list of dicts for each @font-face in the /* latin */ subset."""
+def parse_font_face_blocks(css):
+    """Return @font-face blocks. If the CSS is split into subset comments
+    (Google Fonts convention: /* latin */, /* cyrillic */, ...), keep only
+    the latin subset. If a provider ships no subset comments at all (many
+    non-Google foundries — one universal file per weight), keep everything."""
     chunks = re.split(r'(/\*[^*]*\*/\s*)', css)
-    blocks = []
+    all_blocks = []
+    latin_blocks = []
+    has_subset_comments = False
     current_comment = ""
     for chunk in chunks:
         chunk = chunk.strip()
         if chunk.startswith("/*"):
-            current_comment = chunk
-        elif chunk.startswith("@font-face") and current_comment == "/* latin */":
-            family = re.search(r"font-family:\s*'([^']+)'", chunk)
+            current_comment = chunk.strip("/* \t\n").strip()
+            has_subset_comments = True
+        elif chunk.startswith("@font-face"):
+            family = re.search(r"font-family:\s*['\"]([^'\"]+)['\"]", chunk)
             style  = re.search(r"font-style:\s*(\w+)", chunk)
             weight = re.search(r"font-weight:\s*([\d ]+)", chunk)
-            url    = re.search(r"url\((https://[^)]+\.woff2)\)", chunk)
+            url    = re.search(r"url\(\s*['\"]?([^'\")]+\.woff2)['\"]?\s*\)", chunk)
             urange = re.search(r"unicode-range:\s*([^\n;]+)", chunk)
             if family and url:
-                blocks.append({
+                raw_url = url.group(1)
+                if raw_url.startswith("//"):
+                    raw_url = "https:" + raw_url
+                block = {
                     "family":  family.group(1),
                     "style":   style.group(1)  if style  else "normal",
                     "weight":  weight.group(1).strip() if weight else "400",
-                    "url":     url.group(1),
+                    "url":     raw_url,
                     "urange":  urange.group(1).strip() if urange else "",
-                })
+                }
+                all_blocks.append(block)
+                if current_comment.lower() == "latin":
+                    latin_blocks.append(block)
             current_comment = ""
-    return blocks
+    return latin_blocks if (has_subset_comments and latin_blocks) else all_blocks
 
 
 def local_filename(block):
@@ -106,14 +144,14 @@ def build_font_face_css(blocks, url_to_local):
     lines = ["/* Self-hosted fonts — latin subset only */"]
     for b in blocks:
         fname = url_to_local[b["url"]]
+        unicode_line = f"\n  unicode-range: {b['urange']};" if b["urange"] else ""
         lines.append(
             f"@font-face {{\n"
             f"  font-family: '{b['family']}';\n"
             f"  font-style: {b['style']};\n"
             f"  font-weight: {b['weight']};\n"
             f"  font-display: swap;\n"
-            f"  src: url('/fonts/{fname}') format('woff2');\n"
-            f"  unicode-range: {b['urange']};\n"
+            f"  src: url('/fonts/{fname}') format('woff2');{unicode_line}\n"
             f"}}"
         )
     return "\n".join(lines) + "\n"
@@ -129,28 +167,51 @@ def prepend_to_css(css_path, font_css):
     return True
 
 
-def preload_tags(url_to_local):
-    """Return <link rel="preload"> tags for the most critical fonts."""
-    critical = [
-        fname for fname in url_to_local.values()
-        if "playfair" in fname and "regular" in fname
-    ] + [
-        fname for fname in url_to_local.values()
-        if "playfair" in fname and "italic" in fname
-    ] + [
-        fname for fname in url_to_local.values()
-        if "source-serif" in fname and "regular" in fname
-    ]
-    seen = set()
+def preload_tags(blocks, url_to_local):
+    """Preload the base (400, non-italic) weight of each distinct family —
+    that's the one most likely to gate first paint of visible text."""
+    seen_families = set()
     tags = []
-    for fname in critical:
-        if fname not in seen:
-            seen.add(fname)
-            tags.append(
-                f'  <link rel="preload" href="/fonts/{fname}" '
-                f'as="font" type="font/woff2" crossorigin />'
-            )
+    for b in blocks:
+        if b["style"] == "italic" or b["family"] in seen_families:
+            continue
+        if b["weight"] not in ("400", "normal", ""):
+            continue
+        seen_families.add(b["family"])
+        fname = url_to_local[b["url"]]
+        tags.append(
+            f'  <link rel="preload" href="/fonts/{fname}" '
+            f'as="font" type="font/woff2" crossorigin />'
+        )
     return tags
+
+
+def patch_header(header_path, lines_to_remove, preload_tags_list):
+    with open(header_path) as f:
+        lines = f.readlines()
+
+    remove_set = set(lines_to_remove)
+    kept = [l for l in lines if l.strip() not in remove_set]
+
+    if preload_tags_list:
+        already_present = any(
+            any(tag.strip() in l for tag in preload_tags_list) for l in kept
+        )
+        if not already_present:
+            marker = '<link rel="stylesheet" href="/styles.css" />'
+            new_kept = []
+            inserted = False
+            for l in kept:
+                if not inserted and marker in l:
+                    indent = l[: len(l) - len(l.lstrip())]
+                    for tag in preload_tags_list:
+                        new_kept.append(indent + tag.strip() + "\n")
+                    inserted = True
+                new_kept.append(l)
+            kept = new_kept
+
+    with open(header_path, "w") as f:
+        f.writelines(kept)
 
 
 def main():
@@ -168,44 +229,61 @@ def main():
         print(f"ERROR: header not found: {header_path}")
         sys.exit(1)
 
-    fonts_url = find_google_fonts_url(header_path)
-    if not fonts_url:
-        print("DETECTED:no_google_fonts")
+    candidate_links = find_stylesheet_links(header_path)
+    font_cdns = []
+    for link_url in candidate_links:
+        try:
+            css_text = fetch_css(link_url)
+        except Exception:
+            continue
+        if "@font-face" in css_text:
+            font_cdns.append((link_url, css_text))
+
+    if not font_cdns:
+        print("DETECTED:no_font_cdn")
         return
 
-    print(f"DETECTED:google_fonts:{fonts_url}")
-
-    css = fetch_css(fonts_url)
-    blocks = parse_latin_blocks(css)
-    print(f"DETECTED:{len(blocks)} latin @font-face blocks from {len(set(b['url'] for b in blocks))} files")
+    all_blocks = []
+    for fonts_url, css in font_cdns:
+        print(f"DETECTED:font_cdn:{fonts_url}")
+        blocks = parse_font_face_blocks(css)
+        print(f"DETECTED:{len(blocks)} @font-face blocks from {len(set(b['url'] for b in blocks))} files")
+        all_blocks.extend(blocks)
 
     url_to_local = {}
-    for b in blocks:
+    for b in all_blocks:
         if b["url"] not in url_to_local:
             url_to_local[b["url"]] = local_filename(b)
 
-    font_css = build_font_face_css(blocks, url_to_local)
-    preloads = preload_tags(url_to_local)
+    font_css = build_font_face_css(all_blocks, url_to_local)
+    preloads = preload_tags(all_blocks, url_to_local)
 
-    # Lines to remove from header.html
+    # Lines to remove from header.html: the CDN stylesheet <link> itself, any
+    # <link rel="preconnect"> pointing at that CDN's domain, and the same for
+    # any domain the actual font FILES are served from (fonts.gstatic.com is a
+    # different domain from fonts.googleapis.com, for example).
     with open(header_path) as f:
         header_lines = f.readlines()
 
-    remove_patterns = [
-        r'fonts\.googleapis\.com',
-        r'fonts\.gstatic\.com',
-    ]
-    lines_to_remove = [
-        l.strip() for l in header_lines
-        if any(re.search(p, l) for p in remove_patterns)
-    ]
+    font_domains = {urlparse(u).netloc for u, _ in font_cdns}
+    font_domains |= {urlparse(b["url"]).netloc for b in all_blocks}
+    cdn_hrefs = {u for u, _ in font_cdns}
+
+    def line_matches(line):
+        if any(href in line for href in cdn_hrefs):
+            return True
+        if "preconnect" in line and any(dom in line for dom in font_domains):
+            return True
+        return False
+
+    lines_to_remove = [l.strip() for l in header_lines if line_matches(l)]
 
     if mode == "audit":
         print("\nWould download:")
         for url, fname in sorted(set(url_to_local.items())):
             print(f"  FONT_FILE:{FONTS_DIR}/{fname}")
         print("\nWould add to styles.css:")
-        for b in blocks:
+        for b in all_blocks:
             print(f"  FONT_FACE_BLOCK:{b['family']}:{b['style']}:{b['weight']}")
         print("\nWould remove from header.html:")
         for l in lines_to_remove:
@@ -213,10 +291,10 @@ def main():
         print("\nWould add to header.html:")
         for tag in preloads:
             print(f"  PATCH_HEADER:add_preload:{tag.strip()}")
-        print(f"\nDONE:audit:{len(url_to_local)} font files:{len(blocks)} @font-face blocks")
+        print(f"\nDONE:audit:{len(url_to_local)} font files:{len(all_blocks)} @font-face blocks")
         return
 
-    # Fix mode — download and patch
+    # Fix mode — download, patch styles.css, patch header.html directly
     os.makedirs(FONTS_DIR, exist_ok=True)
     downloaded = 0
     for url, fname in url_to_local.items():
@@ -230,7 +308,6 @@ def main():
             kb = os.path.getsize(dest) // 1024
             print(f"FONT_FILE:{dest}:{kb}KB (already exists)")
 
-    # Patch styles.css in both theme and dist
     for css_path in [
         f"website/theme/{theme}/styles.css",
         "website/dist/styles.css",
@@ -241,19 +318,12 @@ def main():
             else:
                 print(f"SKIP:styles_already_patched:{css_path}")
 
-    # Report header.html changes (caller must apply these)
-    print("\n--- Header.html changes required ---")
-    print("REMOVE these lines from header.html:")
-    for l in lines_to_remove:
-        print(f"  {l}")
-    print("\nADD these preload tags (before <link rel='stylesheet'>):")
-    for tag in preloads:
-        print(f"  {tag.strip()}")
+    patch_header(header_path, lines_to_remove, preloads)
+    print(f"PATCHED:header:{header_path}")
 
-    n_faces = len(blocks)
+    n_faces = len(all_blocks)
     print(f"\nDONE:summary:{downloaded} font files downloaded:{n_faces} @font-face blocks generated")
-    print("NOTE: Update header.html manually using the REMOVE/ADD instructions above.")
-    print("NOTE: Rebuild with assemble.sh after updating header.html.")
+    print("NOTE: Rebuild (make / assemble.sh) to pick up the patched header.html and styles.css.")
 
 
 if __name__ == "__main__":

@@ -86,10 +86,14 @@ On outline approval, write the markdown file to the correct path.
 
 **Format:** Standard markdown with YAML frontmatter matching the content type's spec from `content-types.md`.
 
+`title:` becomes the page's literal `<title>` tag at build time — write it as a real, specific search-result title (include the site/brand name), not a short internal label like "About" or "Docs".
+
+If this page should never appear in search results (an internal demo, a duplicate, a mockup gallery), add `noindex: true` to the frontmatter.
+
 **Example — page type:**
 ```markdown
 ---
-title: About
+title: "About Acme — Why We Built a Lightweight Alternative"
 description: [1-sentence description for SEO and sharing]
 ---
 

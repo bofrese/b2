@@ -53,6 +53,12 @@ Generated HTML is a fragment — it will be wrapped by the Makefile with header.
 - ✗ `<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`, `<header>`, `<footer>`
 - ✓ Content sections only, starting with the first meaningful content element
 
+### Image Tags — Required Attributes
+
+Every generated `<img>` must carry:
+- `width` and `height` matching the actual source file's pixel dimensions (prevents layout shift) — check the real file, don't guess
+- `loading="lazy"` — except the first meaningful image on the page (typically the hero), which gets `loading="eager" fetchpriority="high"` instead since it's the likely LCP element
+
 ### Bespoke / high-craft pages
 
 The two rules above (semantic classes, no visual styles) are the **default** and the backbone of theme-swappability — follow them for standard content. But b2 pages are allowed to be hand-crafted and visually rich (see the product vision, "hand-crafted pages, surgically maintained"). When a page needs a bespoke interactive element the base vocabulary can't express — an animated hero, a scroll-told section, a Three.js/canvas mount, a WebGL background — support it as follows, in order of preference:

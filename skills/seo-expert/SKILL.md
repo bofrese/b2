@@ -18,6 +18,7 @@ Full-cycle SEO: audit, fix, dialog for issues needing input, and advise on what 
    - No argument → **Full Fix Mode** (audit everything, fix everything)
    - Specific page (e.g., `about.html`) → run Full Fix Mode scoped to that page
    - Category keyword (`images`, `schema`, `sitemap`, `content`, `performance`) → targeted mode
+   - `pagespeed` / `cwv` / `lighthouse` → **PageSpeed Check Mode**
    - Question or strategy request → **Coaching Mode** (load `references/seo-knowledge.md`)
 
 ---
@@ -50,9 +51,9 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/fix-img-tags.py" audit
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/create-og-images.py" audit
 ```
 
-**Font CDN check** (Bash):
+**Font CDN check** — don't grep for one provider; run the detector, which checks every external stylesheet link, not just Google Fonts (Bash):
 ```bash
-grep -c 'fonts.googleapis' website/theme/${THEME}/header.html 2>/dev/null || echo "0"
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/selfhost-fonts.py" audit
 ```
 
 **Build system check** (Bash):
@@ -97,7 +98,7 @@ Sort all findings into four buckets:
 - `<img>` missing `loading` attribute → `fix-img-tags.py fix`
 - Missing `robots.txt` (once URL known from ONE_QUESTION)
 - Missing `sitemap.xml` (once URL known from ONE_QUESTION)
-- Google Fonts CDN detected → self-host using `selfhost-fonts.py fix` (see `references/b2-seo-guide.md`)
+- Any font CDN detected (Google Fonts, Fontshare, or others — check every `<link rel="stylesheet">` pointing off-domain, not just the first one found) → self-host using `selfhost-fonts.py fix` (see `references/b2-seo-guide.md`) — it detects and patches all of them in one pass, including header.html directly
 - og:image missing but page images exist → auto-generate 1200×630 crops using `create-og-images.py fix`
 - LCP preload missing → add `{{LCP_PRELOAD}}` to `header.html` + update `assemble.sh` to inject it (see `references/b2-seo-guide.md` — "LCP Preload Pattern")
 
@@ -115,9 +116,11 @@ Sort all findings into four buckets:
 
 **EXTERNAL issues** (print exact steps, cannot fix in files):
 - Google Search Console not set up
-- PageSpeed/CWV score unknown (must test externally — share results to fix LCP/FCP in code)
 - No backlinks (strategy advice only)
 - og:image missing AND no page images exist (no source to crop — must create with `/b2:illustrate`)
+
+**HANDOFF issue** (automatable, but needs the live site — not part of Full Fix Mode's local-dist phases):
+- PageSpeed/Core Web Vitals — see "PageSpeed Check Mode" below. Mention it in the plan (see Phase 3) rather than treating it as EXTERNAL busywork; it only requires the user to confirm publishing, not to run anything manually.
 
 ### Phase 3 — Present the Plan
 
@@ -144,10 +147,10 @@ DIALOG (need your input): N issues
 
 EXTERNAL (you need to do these — exact steps below): N issues
   ⚠ Google Search Console not set up
-  ⚠ PageSpeed score unknown — test at pagespeed.web.dev
 
 HANDOFF: N issues
   → 2 thin pages — run /b2:write to rewrite them
+  → PageSpeed/Core Web Vitals — run `/b2:seo pagespeed` once this is published (I run the test myself, no manual steps)
 
 Fix everything above? (yes / no / start with AUTO only)
 ```
@@ -182,7 +185,7 @@ Report each AUTO fix as it completes:
 
 ### Phase 5 — ONE_QUESTION Dialog
 
-For each ONE_QUESTION issue, ask the single question and then immediately fix:
+Check `website/b2.cfg` for `SITE_URL=` first — `/b2:setup` collects this at project setup, and the build already injects it into canonical/og:url on every page. Only ask if it's genuinely missing (older project, setup skipped, or left blank at the time).
 
 ```
 One question needed to fix 3 issues:
@@ -193,9 +196,11 @@ Example: https://example.com
 ```
 
 After user answers:
-1. Add `<link rel="canonical" href="{{url}}{{page_path}}">` template to `header.html`
-2. Add `og:url` to Open Graph block in `header.html`
+1. Write `SITE_URL={value}` into `website/b2.cfg` (add the line if absent)
+2. Rebuild (`make` or `bash scripts/assemble.sh`) so canonical/og:url are injected across all pages
 3. Run `bash "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/generate-sitemap.sh" "{{url}}"`
+
+Do not patch `header.html` directly — canonical/og:url are `{{CANONICAL}}` placeholders filled by the assembler from `b2.cfg`, not static text to edit per project.
 
 If there are multiple ONE_QUESTION items with different questions, ask them all at once as a numbered list. Never ask the same question twice.
 
@@ -280,12 +285,6 @@ Things you need to do manually:
   4. Submit sitemap: https://example.com/sitemap.xml
   Estimated time: 10 minutes
 
-⚠ PageSpeed / Core Web Vitals
-  1. Go to https://pagespeed.web.dev/
-  2. Enter your URL
-  3. Share the LCP and CLS scores with me — I'll fix what's fixable in code
-  Estimated time: 2 minutes
-
 ⚠ og:image missing
   You don't have a social sharing image yet.
   Ideal: 1200×630px, shows your brand clearly when shared on LinkedIn/X.
@@ -322,16 +321,94 @@ Fixed with your input (5):
   ✓ Alt text confirmed on 3 images
   ✓ Title + description added to index.md, about.md
 
-Still needs action (3):
+Still needs action (2):
   ⚠ Google Search Console — set up at search.google.com/search-console
-  ⚠ PageSpeed score — test at pagespeed.web.dev and share results
   ⚠ og:image — create a 1200×630 social image
 
-Handed off (1):
+Handed off (2):
   → /b2:write — 2 thin pages need more content: posts/intro.md, services.md
+  → Run `/b2:seo pagespeed` once this build is published to check Core Web Vitals
 
 Next: Run /b2:serve then /b2:website-review to verify the rebuilt site.
 ```
+
+---
+
+## PageSpeed Check Mode
+
+Triggered by: "pagespeed", "core web vitals", "cwv", "lighthouse", "test performance", `/b2:seo pagespeed`. Also reachable as the natural next step after Full Fix Mode rebuilds the site.
+
+PageSpeed Insights tests a live URL over the network — it cannot see `website/dist/` directly. Every step below exists because of that one constraint.
+
+### Step 1 — Confirm SITE_URL
+
+Read `website/b2.cfg` for `SITE_URL=`. If missing or empty, ask for it and offer to save it to `b2.cfg` (see `setup-expert` Step 2b for the convention) — do not proceed without it.
+
+### Step 2 — Confirm the Build Is Published
+
+Ask the user directly: "Has the current build been published to {SITE_URL}? PageSpeed tests the live site, not your local `dist/` — I need to know it's current before testing." **Never publish automatically** — this is the user's call every time, even if they said yes last time.
+
+- If not published: stop here. Tell them to publish (`make publish`, or their project's publish path) and run this again.
+- If published: continue.
+
+### Step 3 — Check for an API Key
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/check-pagespeed-key.py"
+```
+
+If `MISSING`: load `references/pagespeed-api-key.md` and follow it (explain the free-key setup, save to `.env` if the user pastes one). The check without a key still works but often hits an already-exhausted shared quota — try it anyway if the user declines to get a key, and surface the quota error plainly if it happens.
+
+### Step 4 — Run the Check
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/pagespeed-check.py" "{SITE_URL}" --strategy mobile
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/pagespeed-check.py" "{SITE_URL}" --strategy desktop
+```
+
+Run both — mobile and desktop scores commonly diverge (mobile is CPU/network-throttled in Lighthouse; a healthy desktop score alongside a poor mobile score usually points at render-blocking CDN resources, not a fundamental site problem).
+
+Parse the `METRIC:`/`FIELD_METRIC:`/`OPPORTUNITY:`/`DIAGNOSTIC:` lines. `POOR`/`NEEDS_IMPROVEMENT` metrics and top `OPPORTUNITY` lines are what to act on; `DIAGNOSTIC` lines are secondary.
+
+### Step 5 — Map Findings to Fixes
+
+Known automated fixes already in this skill — apply directly, don't just report:
+
+| Finding | Fix |
+|---|---|
+| Poor LCP/FCP + `render-blocking-resources`/`BLOCKING_RESOURCE:` + any font CDN in header | `scripts/selfhost-fonts.py fix` — detects every font CDN (not just Google Fonts), patches header.html and styles.css directly, no manual follow-up edit needed |
+| Poor LCP with `LCP_PHASE:Element render delay` dominating over `LCP_PHASE:Time to first byte` | Not a resource-loading problem — something on the main thread is delaying paint (decorative JS, heavy animation init). Check `LCP_ELEMENT:` to see what's actually the LCP candidate (can be text, not an image). Fix is to defer non-critical JS via `requestIdleCallback`, not to remove the effect — see "sequence, don't cut" below |
+| Poor LCP, no `<link rel="preload">` for the hero image | Confirmed already handled by `assemble.sh`/`assemble-page.sh`'s `{{LCP_PRELOAD}}` injection — check the hero `<img>` has `fetchpriority="high"` (`fix-img-tags.py fix` if not) |
+| CLS + missing image dimensions | `scripts/fix-img-tags.py fix` |
+| `unminified-css`/`unminified-javascript` opportunities | Theme CSS/JS should already be minified on copy to `dist/` — see `scripts/minify-css.py`/`minify-js.py`, wired into `build-expert`'s `assemble.sh` and (for projects with their own Makefile) `website/scripts/minify-*.py`. If the opportunity still appears, the project's build isn't calling them yet — wire it in, don't hand-minify inline. |
+| `unused-css-rules`/`unused-javascript` | Report only — requires design judgement about what to cut |
+| Accessibility `color-contrast` diagnostic | DIALOG — propose specific color adjustments in `styles.css`, confirm with user before applying (visual/brand decision) |
+
+For anything with no automated fix, report it plainly rather than silently skipping — the user decides whether it's worth hand-fixing.
+
+### Step 6 — Rebuild and Report
+
+If any fix was applied, rebuild (`make` or `scripts/assemble.sh`), then report:
+
+```
+PageSpeed Check — Acme (https://example.com)
+
+Mobile: Performance 77 → Accessibility 96 → Best Practices 100 → SEO 100
+  LCP 4.1s (POOR)  FCP 3.3s (POOR)  CLS 0.00 (GOOD)  TBT 0ms (GOOD)
+
+Desktop: Performance 99 (all GOOD)
+
+Fixed:
+  ✓ Self-hosted Inter + JetBrains Mono (removed Google Fonts CDN round-trip)
+
+Reported, not auto-fixed:
+  → Minify CSS (3KB) / JS (2KB) — no automated tool for this yet
+  → color-contrast — needs a design decision, propose specific values if you want this fixed
+
+Next: Publish this build, then run `/b2:seo pagespeed` again to confirm the mobile LCP/FCP numbers improved.
+```
+
+Close by asking the user to publish again — never do it automatically — and offer to re-run the check once they confirm.
 
 ---
 
@@ -483,10 +560,16 @@ Anchor advice to the specific site. Read `docs/product/vision.md` and `docs/prod
 ### Reference Files
 - **`references/seo-knowledge.md`** — Elite SEO knowledge: ranking signals, schema, content strategy, CWV, entity SEO. Load for coaching mode and schema generation.
 - **`references/b2-seo-guide.md`** — b2 file map, fix locations, header template patterns, content inventory commands, schema examples.
+- **`references/pagespeed-api-key.md`** — Guided setup when `check-pagespeed-key.py` returns `MISSING`.
 
 ### Scripts
 - **`scripts/seo-audit.sh`** — HTML audit across `dist/`. Outputs `ISSUE:`/`WARN:`/`OK:` lines for titles, meta, canonical, OG, schema, images, word count.
 - **`scripts/generate-sitemap.sh`** — Generates `sitemap.xml` and `robots.txt` in `dist/`. Arg: base URL.
+- **`scripts/pagespeed-check.py`** — Calls the PageSpeed Insights API for a live URL (no browser automation). Outputs `SCORE:`/`METRIC:`/`FIELD_METRIC:`/`LCP_ELEMENT:`/`LCP_PHASE:`/`BLOCKING_RESOURCE:`/`OPPORTUNITY:`/`DIAGNOSTIC:` lines. Args: `<url> [--strategy mobile|desktop] [--categories ...]`.
+- **`scripts/selfhost-fonts.py`** — Detects every external font-CDN stylesheet in header.html (provider-agnostic — any CDN serving `@font-face` CSS, not just Google Fonts), downloads the files, patches styles.css and header.html directly. Modes: `audit`, `fix`.
+- **`scripts/check-pagespeed-key.py`** — Checks for a PageSpeed API key in `.env`/env vars. Prints `OK:<source>` or `MISSING`, exit code 0/1.
 - **`scripts/prep-images.py`** — **Primary image tool.** Resizes (if over `--max-width`) and converts to WebP in one pass. Auto-detects Pillow → cwebp → ImageMagick. Accepts file or directory. Audit (no `--fix`): shows what would happen. Fix: resizes and converts. Flags: `--max-width N`, `--quality N`, `--force`, `--delete-originals`.
 - **`scripts/optimize-images.sh`** — Audits image format/size/tag issues and CSS/JS performance. Reports only — does not modify files. Use `prep-images.py --fix` for actual processing.
 - **`scripts/fix-img-tags.py`** — Fixes `<img>` tag attributes in partials: adds width/height (from image files), loading, fetchpriority. Modes: `audit`, `fix`, `fix --dry-run`.
+- **`scripts/minify-css.py`** — Pure-Python CSS minifier (comments + whitespace), no Node/npm dependency. Wired into the build, not a manual step.
+- **`scripts/minify-js.py`** — Conservative JS minifier: strips only full-line comments (never mid-line, to avoid misreading regex literals), preserves all whitespace/newlines otherwise. Deliberately not a full minifier — see its docstring for why.

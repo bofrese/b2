@@ -288,31 +288,29 @@ Only classify og:image as EXTERNAL if the page has NO existing image (e.g., a te
 
 ## Font Self-Hosting
 
-**Google Fonts CDN causes FCP delays.** Every page load requires DNS lookups + TLS handshakes to two external origins (`fonts.googleapis.com` + `fonts.gstatic.com`) before text can render. Self-hosting removes this entirely.
+**Any external font CDN causes FCP delays**, not just Google Fonts. Every page load requires DNS lookups + TLS handshakes to each external origin before text can render — a design with two foundries (e.g. Google Fonts for body text, Fontshare/Adobe Fonts/Bunny Fonts for display headings) pays this cost twice. Check for **all** of them, not just the first one found — a second CDN is easy to miss because a similar-looking fix (self-hosting the first one) already ran and the page "looks handled."
 
-**Detection:**
+**Detection and fix are the same step** — the script fetches every external `<link rel="stylesheet">` in header.html and keeps whichever ones actually serve `@font-face` CSS (provider-agnostic, no per-CDN special-casing):
 ```bash
-grep 'fonts.googleapis' website/theme/${THEME}/header.html
-```
-
-**Automated fix:**
-```bash
-# Audit — see what would be downloaded
+# Audit — see what would be downloaded, from every detected font CDN
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/selfhost-fonts.py" audit
 
-# Download Latin-subset woff2 files and patch styles.css
+# Download Latin-subset (or, for providers that don't split by subset, all) woff2
+# files, patch styles.css, and patch header.html directly
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/seo-expert/scripts/selfhost-fonts.py" fix
 ```
 
 The script:
-1. Reads the Google Fonts URL from header.html
-2. Downloads only the `/* latin */` subset woff2 files → `website/dist/fonts/`
+1. Finds every external stylesheet link in header.html, fetches each, keeps the ones containing `@font-face`
+2. Downloads the `/* latin */` subset woff2 files where the provider splits by subset (Google Fonts convention); downloads everything where it doesn't (many other foundries ship one universal file per weight — Fontshare, for example)
 3. Generates `@font-face` rules with `font-display: swap` → prepends to `styles.css` (both theme and dist copies)
-4. Prints the lines to **remove** from header.html and the `<link rel="preload">` tags to **add**
+4. **Patches header.html directly** — removes the CDN `<link>`/`<preconnect>` tags, adds `<link rel="preload">` for the base (400, non-italic) weight of each family. No manual follow-up edit needed.
 
-**After running:** apply the header.html changes printed by the script, then rebuild.
+**Variable fonts are not a bug:** modern Google Fonts responses often serve ONE woff2 file covering an entire weight range, with several `@font-face` blocks (one per discrete weight, e.g. 400/500/600/700) all pointing at that same file. This is standard, correct technique — browsers instantiate the right weight from the file's variable axis. Don't "fix" it into separate per-weight downloads; the script already handles this correctly via URL deduplication.
 
-**Expected FCP improvement:** 1–3s → typically halves FCP (eliminated cross-origin DNS + TLS round trips). Observed: 3.5s → 1.1s in one real-world case.
+**After running:** rebuild (`make` or `assemble.sh`) — no manual header.html edit needed, the script already applied it.
+
+**Expected FCP improvement:** 1–3s → typically halves FCP (eliminated cross-origin DNS + TLS round trips) per CDN removed. Observed: 3.5s → 1.1s in one real-world case with two CDNs self-hosted.
 
 ---
 
@@ -358,11 +356,13 @@ b2 sites are static HTML — inherently fast. Common CWV issues in b2 sites:
 **FCP (first text/paint):**
 - Google Fonts CDN is the most common FCP killer — self-host instead (see Font Self-Hosting above).
 - Any render-blocking third-party script in `<head>` without `defer` adds latency.
+- Check **every** CDN font, not just Google Fonts — a font-heavy design commonly loads two or three foundries at once (e.g., Google Fonts for body text, Fontshare/Adobe Fonts for display headings). `selfhost-fonts.py` only handles Google Fonts; a second CDN with the same render-blocking cost is easy to miss because it "already looks handled."
 
-**LCP (hero image):**
-- Add `<link rel="preload">` in `<head>` for the LCP image — auto-inject via `{{LCP_PRELOAD}}` in assemble.sh.
-- Hero image in the partial should have `fetchpriority="high"` and `loading="eager"`.
-- Ensure hero image is WebP and sized to actual display dimensions (not 2x oversize).
+**LCP:**
+- The LCP element is not always an image — it can be a text node (a hero heading, a styled span). Don't assume; when a PageSpeed check shows a persistently poor LCP with no obvious image cause, query the `lcp-breakdown-insight` audit (not surfaced by the summary script — call the API directly) for the actual element and its `elementRenderDelay` vs `timeToFirstByte` split. A near-zero TTFB with a large render delay means the resource loaded fine and something on the main thread is delaying paint — not a resource-loading problem, a scheduling one.
+- If LCP is an image: add `<link rel="preload">` in `<head>` (auto-injected via `{{LCP_PRELOAD}}` in assemble.sh), `fetchpriority="high"` + `loading="eager"` on the tag, WebP, sized to actual display dimensions.
+
+**General principle — sequence, don't cut:** a slow paint is usually a scheduling problem, not a "too much visual richness" problem. Never propose removing an animation, background effect, or decorative element to fix a speed score — reorder it instead. Anything not needed for first paint (ambient canvas/particle backgrounds, parallax fields, decorative mascots, glitch/glow effects) should initialize after first paint, not before or during it: gate with `requestIdleCallback(fn, { timeout: N })` (with a `setTimeout` fallback for browsers without it) or a `window.load` listener, respecting `prefers-reduced-motion` throughout. This site's own `scripts.js` already does this correctly for its starfield canvas and parallax space objects — treat that as the reference pattern, not a one-off. The only case for actually cutting an effect is if the user decides the tradeoff isn't worth it — that's their call to make, not a default fix.
 
 **CLS (layout shift)**:
 - All images need `width` and `height` attributes — `fix-img-tags.py` handles this.
@@ -370,9 +370,9 @@ b2 sites are static HTML — inherently fast. Common CWV issues in b2 sites:
 
 **Render-blocking resources**:
 - CSS `<link>` in `<head>` is correct — do not add `async`/`defer` to stylesheets.
-- Third-party scripts (e.g., Lucide from unpkg.com) in `<head>` must have `defer`.
+- Every `<script>` tag — first-party (`scripts.js`) and third-party (e.g., Lucide from unpkg.com) alike — needs `defer` unless it has a specific reason to run synchronously. Being placed at the end of `<body>` is not equivalent to `defer`: an un-deferred script there still blocks parsing/paint while it downloads and executes.
 
-**PageSpeed workflow:** after deploying fixes, test at pagespeed.web.dev. Share LCP and FCP numbers. Common pattern: font fix → FCP drops, then LCP preload → LCP drops.
+**PageSpeed workflow:** use `/b2:seo pagespeed` (PageSpeed Check Mode) — it calls the API directly via `scripts/pagespeed-check.py`, no manual site visits needed. Test mobile and desktop both; a healthy desktop score with a poor mobile score usually means render-blocking CDN resources (fonts, scripts), since mobile is CPU/network-throttled in Lighthouse and desktop isn't. Common pattern: font self-hosting → FCP drops, `defer` on remaining scripts → LCP render-delay drops, LCP preload → LCP fetch-delay drops.
 
 ---
 

@@ -120,6 +120,24 @@ for PAGE in $PAGES; do
   fi
   if [ "$OG_IMAGE" -eq 0 ]; then
     echo "WARN:$REL:og_image_missing:No og:image tag"
+  else
+    OG_IMAGE_PATH=$(echo "$CONTENT" \
+      | grep -oE 'property="og:image"[^>]*content="[^"]*"' \
+      | grep -oE 'content="[^"]*"' \
+      | sed 's/content="\([^"]*\)"/\1/' \
+      | head -1 || true)
+    if [ -n "$OG_IMAGE_PATH" ]; then
+      OG_IMAGE_LOCAL=$(echo "$OG_IMAGE_PATH" | sed -E 's#^https?://[^/]+##')
+      if [ ! -f "$DIST$OG_IMAGE_LOCAL" ]; then
+        echo "ISSUE:$REL:og_image_broken:og:image points to $OG_IMAGE_PATH — file not found in dist/"
+      fi
+    fi
+  fi
+
+  # ── Unfilled template placeholders (assemble.sh regression) ─
+  UNFILLED=$(echo "$CONTENT" | grep -oE '\{\{[A-Z_]+\}\}' | sort -u | tr '\n' ' ')
+  if [ -n "$UNFILLED" ]; then
+    echo "ISSUE:$REL:unfilled_placeholder:literal template vars in output: $UNFILLED"
   fi
 
   # ── Images without alt ─────────────────────────────────────
@@ -168,6 +186,12 @@ for PAGE in $PAGES; do
   VIEWPORT=$(echo "$CONTENT" | grep -c 'name="viewport"' || true)
   if [ "$VIEWPORT" -eq 0 ]; then
     echo "ISSUE:$REL:viewport_missing:No viewport meta tag (mobile indexing will fail)"
+  fi
+
+  # ── Favicon ─────────────────────────────────────────────────
+  FAVICON=$(echo "$CONTENT" | grep -c 'rel="icon"' || true)
+  if [ "$FAVICON" -eq 0 ]; then
+    echo "ISSUE:$REL:favicon_missing:No <link rel=\"icon\"> found — see design-expert's generate-favicon.py"
   fi
 
   # ── Semantic landmarks ─────────────────────────────────────

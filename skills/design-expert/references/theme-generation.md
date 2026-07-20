@@ -181,15 +181,15 @@ Classes used across multiple content types or in global layout.
 
 ## header.html
 
-`header.html` is the full HTML document open — not just a navigation fragment. It must contain the complete `<head>` block and open `<body>`, then the `<header>` element. The Makefile assembles pages as:
+`header.html` is the full HTML document open — not just a navigation fragment. It must contain the complete `<head>` block and open `<body>`, then the `<header>` element. Assembly (whether via the project's Makefile or build-expert's bundled `assemble.sh`) injects per-page SEO values into the placeholders below, then concatenates:
 
 ```
-cat header.html partials/page.html footer.html > dist/page.html
+header.html (with {{PLACEHOLDERS}} filled) + partials/page.html + footer.html > dist/page.html
 ```
 
 So the assembled `dist/*.html` files are only valid HTML if `header.html` opens the document and `footer.html` closes it.
 
-**Required structure — include the full SEO block:**
+**Required structure — include the full SEO block, using these exact placeholder tokens (filled per-page at build time from `src/*.md` frontmatter — do not write literal site values here):**
 
 ```html
 <!DOCTYPE html>
@@ -199,20 +199,24 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- ═══ SEO — Core ══════════════════════════════════════════ -->
-  <!-- NOTE: title and description are site defaults.           -->
-  <!-- Page-specific values: add title:/description: frontmatter -->
-  <!-- to src/*.md, then run /b2:seo to inject per-page meta.  -->
-  <title>[Site Name] — [Tagline]</title>
-  <meta name="description" content="[One-sentence site description — what it does, for whom.]" />
-  <link rel="canonical" href="[https://yourdomain.com]/" />
+  <!-- {{TITLE}}/{{DESCRIPTION}}/{{CANONICAL}} are filled per page  -->
+  <!-- at build time from src/*.md title:/description: frontmatter -->
+  <!-- and SITE_URL in b2.cfg. Never replace these with static text. -->
+  <title>{{TITLE}}</title>
+  <meta name="description" content="{{DESCRIPTION}}" />
+  <link rel="canonical" href="{{CANONICAL}}" />
+  {{ROBOTS}}
+  {{LCP_PRELOAD}}
 
   <!-- ═══ SEO — Open Graph (social sharing) ══════════════════ -->
   <meta property="og:type"        content="website" />
   <meta property="og:site_name"   content="[Site Name]" />
-  <meta property="og:title"       content="[Site Name] — [Tagline]" />
-  <meta property="og:description" content="[One-sentence site description.]" />
-  <meta property="og:url"         content="[https://yourdomain.com]/" />
-  <meta property="og:image"       content="[https://yourdomain.com/images/og-image.png]" />
+  <meta property="og:title"       content="{{OG_TITLE}}" />
+  <meta property="og:description" content="{{OG_DESCRIPTION}}" />
+  <meta property="og:url"         content="{{CANONICAL}}" />
+  <meta property="og:image"       content="{{OG_IMAGE}}" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta name="twitter:card"       content="summary_large_image" />
 
   <!-- ═══ SEO — Structured Data (JSON-LD) ════════════════════ -->
@@ -260,10 +264,10 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
 ```
 
 **SEO notes for header.html:**
-- All bracketed `[values]` must be replaced with real content — never leave placeholder text in production.
-- The title and description here are site-wide defaults. Page-specific values require either: (a) the assembly script injecting frontmatter values, or (b) running `/b2:seo` to update per-page meta after content is written.
-- `og:image` should be a 1200×630px image showing the brand clearly — create one with `/b2:image` or `/b2:illustrate`.
-- After going live, run `/b2:seo` to fill in canonical URLs, update schema values, and audit every page.
+- Bracketed `[values]` (site name, schema logo/sameAs) must be replaced with real content — never leave placeholder text in production. `{{DOUBLE_BRACE}}` tokens are different — leave those exactly as shown; they're filled per page at build time, not by you.
+- `og:image` must resolve to a real file before design is marked complete — generate one now with `/b2:illustrate` or `/b2:image` (1200×630px). Do not leave a placeholder path; a broken og:image is worse than a generic one.
+- Page-level `noindex`: if a page should be excluded from search results (an internal demo, a mockup gallery, a duplicate), set `noindex: true` in that page's `src/*.md` frontmatter — the assembler adds the `<meta name="robots">` tag automatically.
+- After going live, run `/b2:seo` to update schema values (name, logo, social links) from your brand docs and audit the full site.
 
 **URL rules for nav links:**
 
@@ -301,6 +305,37 @@ Without the desktop `display: none`, the toggle renders on all screen sizes.
 
 ---
 
+## Favicon
+
+Generate a favicon once the nav's brand mark is finalized in header.html — it must match that mark exactly (same color, text, font, shape), not be a separately-invented icon. A missing favicon is a small but universally-noticed polish gap; there's no reason to leave it for later.
+
+Determine which case applies:
+
+**The mark is a CSS text badge** (a color chip with bold text — the common b2 pattern, e.g. a `.brandmark` class: background color + text + font-family/weight + border-radius, all already in header.html/styles.css from the work just done):
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/design-expert/scripts/generate-favicon.py" \
+  --text "B2" --bg "#E8531D" --fg "#FFFFFF" \
+  --font website/dist/fonts/{the-self-hosted-heading-font}.ttf \
+  --radius 28
+```
+Use the exact hex colors, text, and radius-as-percent-of-size from the mark's actual CSS rule — don't approximate. If the heading font isn't self-hosted yet (font self-hosting is an SEO-phase step, may not have run), omit `--font` — the script falls back to a system bold sans-serif, which is a fine tradeoff at favicon size rather than blocking on font setup.
+
+**The mark is an existing logo image** (in `theme/{THEME}/assets/`):
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/design-expert/scripts/generate-favicon.py" --image website/theme/{THEME}/assets/logo.png
+```
+
+Either way, this writes `website/src/favicon.ico` and `website/src/assets/{favicon-16,favicon-32,favicon-192}.png` + `apple-touch-icon.png` — add to `header.html`'s `<head>` (alongside the other required structure, near the top):
+```html
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" href="/assets/favicon-16.png" type="image/png" sizes="16x16" />
+<link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32" />
+<link rel="icon" href="/assets/favicon-192.png" type="image/png" sizes="192x192" />
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180" />
+```
+
+---
+
 ## footer.html
 
 `footer.html` closes the HTML document. It must end with `</body></html>` and load `scripts.js` before closing:
@@ -313,10 +348,12 @@ Without the desktop `display: none`, the toggle renders on all screen sizes.
     <p class="site-footer__credit">Built with <a href="http://b2.bofrese.dk" rel="nofollow">b2</a></p>
   </div>
 </footer>
-<script src="/scripts.js"></script>
+<script src="/scripts.js" defer></script>
 </body>
 </html>
 ```
+
+`defer` is required even though the tag is already at the end of `<body>` — being last in the document is not equivalent to `defer`. A synchronous script there still blocks parsing/paint while it downloads and executes; `defer` lets the browser paint without waiting on it.
 
 **`<main>` landmark:** `footer.html` must close a `<main>` element that was opened in `header.html` — after the `<header>`. This is required for SEO (Google uses `<main>` to identify primary page content) and for accessibility. Add `<main>` to `header.html` immediately after the closing `</header>` tag.
 
@@ -335,6 +372,16 @@ craft in the mockup's JS is part of the design and must survive into the live si
 - If a self-hosted library is used, vendor it as its own `*.js` in the theme folder (the build copies it)
   and load it from `header.html`/`footer.html` before `scripts.js`.
 - Gate motion behind `prefers-reduced-motion`; lazy-init heavy 3D.
+
+**Speed and visual richness are not a tradeoff — sequence, don't cut.** A slow paint is a scheduling problem, not a "too much animation" problem. Never simplify away an effect to make a page feel fast; reorder it instead. Anything not needed for first paint — ambient canvas/particle backgrounds, parallax fields, decorative mascots, glow/glitch effects, anything below the fold — must initialize *after* first paint, not during it:
+
+```js
+function lazyInit(){ initHeavyBackgroundEffect(); /* ...other non-critical inits */ }
+if ('requestIdleCallback' in window){ requestIdleCallback(lazyInit, { timeout: 1400 }); }
+else { setTimeout(lazyInit, 200); }
+```
+
+Only code needed to render above-the-fold content correctly (mobile menu, active nav state, footer year) runs eagerly. Everything else — however central to the site's personality — waits. This is not a compromise on craft; it's how the craft ships fast.
 
 Always include these base helpers (in addition to the mockup's JS):
 1. Mobile menu toggle
