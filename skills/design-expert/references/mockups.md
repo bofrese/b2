@@ -117,10 +117,10 @@ assets). Do not summarise or explain.
 
 ### Generate the gallery
 
-Build `website/mockups/index.html` from `${CLAUDE_PLUGIN_ROOT}/skills/design-expert/references/gallery-template.html`:
+Build `website/mockups/index.html` from `${CLAUDE_PLUGIN_ROOT}/shared/design/gallery-template.html`:
 
 1. Read the template.
-2. Replace `{{SITE_NAME}}` (site/theme name) and `{{COUNT}}` (number of concepts).
+2. Replace `{{GALLERY_TITLE}}` (site/theme name) and `{{COUNT}}` (number of concepts).
 3. Replace the `<!-- CARDS -->` marker with one `.card` block per concept, **in creation order** (concept-1, concept-2, concept-3). For each card:
    - `iframe src` and both `href`s point to that `concept-N.html`.
    - `<h2>` = the direction name from Phase B2; `.direction` = "Concept N".

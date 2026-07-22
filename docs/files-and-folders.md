@@ -72,7 +72,14 @@ website/dist/page.html           assembled: header + partial + footer + theme as
 | `website/dist/sitemap.xml`, `robots.txt` | `/b2:seo` | hosting, search engines |
 | `.env` | you | `/b2:image`, `/b2:illustrate` (API key) |
 | `.playwright-mcp/*.png` | `/b2:website-review` | your review |
-| `docs/presentations/{slug}.md` | `/b2:present` | Obsidian Advanced Slides |
+| `docs/presentations/{slug}/{slug}.md` | `/b2:present` | Obsidian Slides Extended preview, `/b2:present-build` |
+| `website/presentation-themes/{name}/` | `/b2:present-design` | `/b2:present-build` |
+| `website/presentation-mockups/` | `/b2:present-design` (mockup phase) | your review |
+| `website/dist/presentations/{slug}/index.html` | `/b2:present-build` | published with the site |
+| `website/dist/presentations/shared/` | `/b2:present-build` | every built deck |
+
+Full breakdown of the presentation layer — mechanisms, reconcile logic, limitations — in
+[presentations.md](presentations.md).
 
 ## Never Hand-Edit
 

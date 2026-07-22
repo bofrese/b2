@@ -14,7 +14,7 @@ token-lean).
 | Skill | Uses | Status |
 |-------|------|--------|
 | `design-expert` (website design) | `web-design-principles.md` (always), plus per-phase slices | Now (this slice) |
-| `present-expert` (presentation design) | `interview-questions.md`, future `presentation-design.md` (§F), principles | Later (presentation slice) |
+| `present-design-expert` (presentation theme design) | `web-design-principles.md`, `interview-questions.md`, `styles-and-business.md`, `trends.md`, `animation-motion.md`, `3d-visual-effects.md`, `gallery-template.html` | Now (presentation slice) |
 | `illustrate-expert` | style/trend slices as needed | Optional, later |
 
 `art-director` is a **bob** skill, not a b2 skill — it cannot read this module. See the boundary note.
@@ -30,9 +30,9 @@ token-lean).
 | `design-systems.md` | Tokens, component systems, framework choice | design tokens, DTCG, Style Dictionary, Tailwind v4, Material 3, Radix, shadcn, DESIGN.md |
 | `trends.md` | "What's current", 2026 direction framing | tactile brutalism, bento matured, spatial UX, AI personalization, scrollytelling, kinetic type, native motion, OKLCH |
 | `interview-questions.md` | Interview grounding (Phase A1), gaps-only questioning — SHARED design+present | business & goals, audience, brand & personality, competitive context, content & conversion, constraints |
+| `presentation-design.md` | Presentation interview/mockups/theme-lock, always — presentation-specific discipline | stage typography, reading distance, pacing, beat philosophy, presentation psychology, curiosity gap, cognitive load, motion intensity ladder |
+| `gallery-template.html` | Any skill generating mockup concepts for review — not a trigger-word reference file, a template consumed via direct path (`${CLAUDE_PLUGIN_ROOT}/shared/design/gallery-template.html`) | mockup gallery, concept review, index.html generation |
 
-`presentation-design.md` (§F: presentation psychology, stage vs projection, pacing) is added in the
-presentation slice — not present yet.
 
 ## bob/b2 boundary
 

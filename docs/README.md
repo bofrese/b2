@@ -12,6 +12,7 @@ This folder documents the plugin itself (what you install). It ships inside the 
 | Install b2 and run your first command | [getting-started.md](getting-started.md) |
 | Look up what a specific command does | [commands.md](commands.md) |
 | Know what files b2 creates in your project, and where | [files-and-folders.md](files-and-folders.md) |
+| Build a presentation — themes, mechanisms, file layout, limitations | [presentations.md](presentations.md) |
 
 ## The Short Version
 

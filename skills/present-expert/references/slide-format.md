@@ -1,39 +1,92 @@
-# Obsidian Advanced Slides Format Reference
+# Presentation Markdown Format Reference
+
+Reveal.js's native external-markdown dialect — the same primitives reveal.js's own markdown
+plugin parses, and what Obsidian's Slides Extended plugin previews. No bespoke syntax is invented;
+every directive below is a native reveal.js comment attribute.
 
 ## File Template
 
 ```markdown
 ---
-theme: [theme]
+theme: [name of a locked presentation theme, from website/presentation-themes/ — left unset if none exists yet]
 transition: [transition]
 slideNumber: true
 ---
 
+<!-- .slide: id="opening-hook" -->
 # [Title]
 ## [Subtitle or hook line]
 
 <!-- Visual: [specific description] -->
 
-note:
+Note:
 [What to say — not what's on the slide. Include: tone to open with, any story or anecdote, transition to next slide.]
 
 ---
 
+<!-- .slide: id="slide-slug" -->
 ## [Slide title as active claim]
 
 [Minimal body content — one idea, max 3 lines or bullet points]
 
 <!-- Visual: [specific description] -->
 
-note:
+Note:
 [What to say. End with: Transition: "This brings us to..."]
 
 ---
 ```
 
-**Theme options:** `default`, `black`, `white`, `moon`, `sky`, `solarized`
-**Transition options:** `none`, `fade`, `slide`, `convex`, `zoom`
-**Slide separator:** `---` (horizontal only — keep the flow linear)
+**Slide separator:** `---` horizontal only — keep the deck linear. Never use `--` (reveal's
+vertical-stack separator); a 2D grid of slides adds presenter-overview complexity this format
+deliberately avoids.
+
+**`theme:`** names a folder under `website/presentation-themes/`, created by `/b2:present-design`.
+`/b2:present-build` resolves it (unset + one theme exists → uses it silently and writes it here;
+unset + multiple exist → asks, defaults to most recent). Never hand-pick a built-in reveal.js theme
+name — the theme is always one this project's `/b2:present-design` produced.
+
+**Transition options:** `none`, `fade`, `slide`, `convex`, `zoom` (reveal.js built-ins — free to use
+regardless of the locked theme, since transitions are a runtime setting, not a design asset).
+
+## Native Slide & Element Attributes
+
+These are reveal.js's own external-markdown comment directives — not a b2 invention. They work
+identically whether previewed in Obsidian or rendered by `/b2:present-build`.
+
+**Slide id** — every slide needs one for surgical rebuilds to track it across edits/moves/renames.
+Never hand-write one; `/b2:present-build`'s ID-backfill pass generates and writes these in
+automatically on first build. Once present, leave it alone — editing or deleting it breaks that
+slide's identity across rebuilds.
+
+```markdown
+<!-- .slide: id="the-enemy" -->
+```
+
+**Hidden slide** — skipped in linear next/prev navigation and the slide count, but still rendered
+and reachable: the presenter overview shows it distinctly and can jump to or promote it live (the
+PowerPoint hidden-slide trick). `hidden ≠ confidential` — the slide still exists in the built HTML.
+Combine with the id attribute in one comment:
+
+```markdown
+<!-- .slide: id="backup-data" data-visibility="hidden" -->
+```
+
+**Fragments** — reveal one element at a time within a slide (build a bullet list, step through a
+diagram):
+
+```markdown
+<!-- .element: class="fragment" -->
+```
+
+## Client Variants (versioning/handouts)
+
+A client-specific version of a deck is a full copy of the source folder to its own slug
+(`docs/presentations/acme-kickoff/`), edited/trimmed for that engagement, built independently to
+its own stable URL. No shared frontmatter list of variants — the copied folder *is* the variant.
+Hide slides you don't want in that client's linear flow with the hidden attribute above; they're
+still one click away in the presenter overview if you need them live. The same URL serves both the
+live presentation and the after-the-fact handout — there is no separate export.
 
 ---
 
@@ -81,7 +134,8 @@ Describe: composition, mood, what's present, what's absent. Include contrast, sc
 
 ### Presenter notes — what to SAY
 
-Notes are for the speaker, not a summary of the slide.
+Notes are for the speaker, not a summary of the slide. Written as `Note:` (reveal.js's native
+notes marker — case-insensitive, but write it capitalized for consistency).
 
 Include:
 - The story or specific example to tell here
@@ -91,7 +145,7 @@ Include:
 
 Format: Transition line at the end of every note.
 ```
-note:
+Note:
 Tell the story of [specific client/event]. The punchline is not the data — it's what happened after. Pause after "nobody believed it."
 
 Transition: "Which is why the question we should be asking isn't how, but whether."

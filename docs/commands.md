@@ -87,11 +87,36 @@ Explicit-invocation only — never triggered by a general "make an illustration"
 
 **Produces:** `website/src/images/*.png` (or a path you specify).
 
-## `/b2:present` — Presentation Builder
+## `/b2:present` — Presentation Content
 
-Not tied to the website build — works for any topic, any time. Four phases: silently harvests context from any b2 docs and notes present, then a Socratic strategic interview (the one idea, audience, enemy, proof, hook, and structure), then an outline you approve, then the full Obsidian Advanced Slides markdown.
+Not tied to the website build — works for any topic, any time. Mode-detects create vs. edit. On a
+new topic: silently harvests context from any b2 docs and notes present, then a Socratic strategic
+interview (the one idea, audience, enemy, proof, hook, and structure), then an outline you approve,
+then the full reveal.js-flavored markdown. On an existing deck: surgical content edits only, no
+re-interview. Offers to dispatch `/b2:present-design` (no theme yet) or `/b2:present-build`
+(content ready).
 
-**Produces:** `docs/presentations/{slug}.md`.
+**Produces:** `docs/presentations/{slug}/{slug}.md`.
+
+## `/b2:present-design` — Presentation Theme
+
+Run once per presentation theme, not once per presentation — grounds in your website's locked
+design language rather than starting fresh. Interview (stage context, motion intensity, audience) →
+2-3 direction proposals → mockup concepts on a fixed 6-slide sample set, reviewed in a gallery →
+iterate → lock.
+
+**Produces:** `website/presentation-themes/{name}/`, `website/presentation-mockups/`.
+
+## `/b2:present-build` — Presentation Render
+
+Applies a locked theme to a deck's markdown, producing (or surgically updating) its live HTML.
+Standalone and per-deck — run it whenever you want that specific presentation rendered or updated,
+never automatically. Preserves the hand-crafted design of any slide you didn't just edit.
+
+For the full mechanics — theme resolution, slide-id reconcile, shared runtime, limitations — see
+[presentations.md](presentations.md).
+
+**Produces:** `website/dist/presentations/{slug}/index.html`, published with the site.
 
 ---
 
