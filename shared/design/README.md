@@ -15,6 +15,7 @@ token-lean).
 |-------|------|--------|
 | `design-expert` (website design) | `web-design-principles.md` (always), plus per-phase slices | Now (this slice) |
 | `present-design-expert` (presentation theme design) | `web-design-principles.md`, `interview-questions.md`, `styles-and-business.md`, `trends.md`, `animation-motion.md`, `3d-visual-effects.md`, `gallery-template.html` | Now (presentation slice) |
+| `present-build-expert` (presentation render) | `implementation-gotchas.md` — read on capture-ratchet promotion decisions, written to when a bug is promoted from a theme's local `design.md` | Now (capture ratchet) |
 | `illustrate-expert` | style/trend slices as needed | Optional, later |
 
 `art-director` is a **bob** skill, not a b2 skill — it cannot read this module. See the boundary note.
@@ -32,6 +33,7 @@ token-lean).
 | `interview-questions.md` | Interview grounding (Phase A1), gaps-only questioning — SHARED design+present | business & goals, audience, brand & personality, competitive context, content & conversion, constraints |
 | `presentation-design.md` | Presentation interview/mockups/theme-lock, always — presentation-specific discipline | stage typography, reading distance, pacing, beat philosophy, presentation psychology, curiosity gap, cognitive load, motion intensity ladder |
 | `gallery-template.html` | Any skill generating mockup concepts for review — not a trigger-word reference file, a template consumed via direct path (`${CLAUDE_PLUGIN_ROOT}/shared/design/gallery-template.html`) | mockup gallery, concept review, index.html generation |
+| `implementation-gotchas.md` | `present-build-expert`'s capture ratchet, before reporting — written to (not just read) when a genuine bug's fix is promoted from a theme's local `design.md` | reveal.js init timing, SVG/flexbox clipping, real defects found and fixed mid-build |
 
 
 ## bob/b2 boundary

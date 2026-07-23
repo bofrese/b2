@@ -100,6 +100,42 @@ project, tell the user:
 
 Skip this note on a second or later theme in the same project (already set up).
 
+### Root-relative paths in theme.css / theme.js
+
+Any path `theme.css` or `theme.js` reference (fonts, images, other assets) must be root-relative
+(`/theme/...` style), never a relative path (`../assets/...`). Theme files get copied to multiple
+directories across the build pipeline (`website/presentation-themes/{name}/` → per-build into
+`website/dist/presentations/shared/themes/{name}/`) — a relative path resolves differently at each
+copy location and silently breaks after the first copy.
+
+### Verification (before Report)
+
+Runs once per theme lock — not on every later rebuild of a deck using this theme.
+
+Resolve a real deck to verify against:
+
+```bash
+root="$(pwd)" && ls -t "$root/docs/presentations/"*/*.md 2>/dev/null
+```
+
+- **Exactly one deck exists** (or one was created earlier this session) → use it.
+- **Multiple decks exist** → ask the user which one to verify against.
+- **None exist** → skip the smoke-test/diff step below entirely (there is nothing real to build).
+  Still write `theme.css`/`theme.js`/`design.md`/`preview.css` as above — none of those need real
+  content. Tell the user in the Report: "Theme locked, but not yet verified against a real build —
+  run `/b2:present` to write a deck, then `/b2:present-build` will verify against this theme
+  automatically on first render."
+
+**When a real deck is available:** use the Skill tool to invoke `present-build-expert`, passing that
+deck's slug, to build it for real against this just-locked theme. Then diff computed styles between
+the approved mockup concept (`website/presentation-mockups/concept-N.html`, the one that was locked)
+and the freshly-built real deck (`website/dist/presentations/{slug}/index.html`) — sample the shared
+tokens both should agree on (type scale, colour variables, spacing scale) via one batched
+`browser_evaluate` call across a couple of comparable slide types (e.g. the title slide and one
+content slide in each). Report any material divergence (this is what would have caught the 2.6×
+font-size bug from an un-inherited base theme) before the lock is considered done — if a divergence
+is found, fix `theme.css` and re-verify before reporting.
+
 ### Report
 
 Tell the user:
@@ -110,3 +146,7 @@ Theme locked: website/presentation-themes/{name}/
 Any presentation can now use it — set `theme: {name}` in its frontmatter, or let
 /b2:present-build resolve it automatically if it's your only theme.
 ```
+
+If verification ran: report the sampled values it compared and confirm they matched (or what was
+fixed). If verification was skipped (no real deck yet): include the "not yet verified" note from
+above.

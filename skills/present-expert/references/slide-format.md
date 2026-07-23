@@ -20,6 +20,9 @@ slideNumber: true
 <!-- Visual: [specific description] -->
 
 Note:
+- [keyword]
+- [keyword]
+
 [What to say — not what's on the slide. Include: tone to open with, any story or anecdote, transition to next slide.]
 
 ---
@@ -137,19 +140,32 @@ Describe: composition, mood, what's present, what's absent. Include contrast, sc
 Notes are for the speaker, not a summary of the slide. Written as `Note:` (reveal.js's native
 notes marker — case-insensitive, but write it capitalized for consistency).
 
-Include:
+**Structure: keywords first, prose below.** The first block of lines in a `Note:` body — up to the
+first blank line — is a plain bullet list of glanceable keywords, for a mid-talk glance. Everything
+after that blank line is full rehearsal prose, ending with the `Transition:` line. No header labels
+either block — the position (before/after the first blank line) is the convention.
+
+Include in the prose:
 - The story or specific example to tell here
 - The exact words for a key phrase worth saying precisely
 - How to handle likely pushback or a confused look
 - A transition sentence to the next slide
 
-Format: Transition line at the end of every note.
+Format:
 ```
 Note:
-Tell the story of [specific client/event]. The punchline is not the data — it's what happened after. Pause after "nobody believed it."
+- empty room
+- lights on
+- nobody came
+
+Tell the story of the launch event where attendance was zero. The punchline isn't the number—it's
+what happened after. Pause after "nobody believed it."
 
 Transition: "Which is why the question we should be asking isn't how, but whether."
 ```
+
+Carries straight into the rendered `<aside class="notes">` — no reveal.js-side handling needed,
+this is authoring convention only.
 
 Notes should be substantial enough that a colleague could deliver the talk from them.
 

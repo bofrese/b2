@@ -10,6 +10,7 @@
 #   {{OG_IMAGE}}       og:image full URL (from og_image frontmatter field)
 #   {{OG_TYPE}}        article | website
 #   {{LCP_PRELOAD}}    <link rel="preload"> for hero image (auto-detected)
+#   {{ASSET_VERSION}}  content-hash of styles.css/scripts.js — cache-busting query param
 #
 # Requires: website/scripts/lcp-image.py (included alongside this template)
 #
@@ -41,6 +42,11 @@ mkdir -p "$dist"
 for f in "$theme"/*.css "$theme"/*.js; do
   [ -f "$f" ] && cp "$f" "$dist/"
 done
+
+# Cache-busting query param for /styles.css and /scripts.js — an 8-char hash of their
+# own content, so the URL only changes (and old cached copies get orphaned) when the
+# asset actually does. Pairs with the long-cache Cache-Control rules in website/src/.htaccess.
+asset_version=$(cat "$theme"/*.css "$theme"/*.js 2>/dev/null | shasum | cut -c1-8)
 
 # Extract a single-line frontmatter field, stripping surrounding quotes.
 fm_get() {
@@ -103,9 +109,7 @@ find "$partials" -name "*.html" | LC_ALL=C sort | while read -r partial; do
   # Use Python for safe string substitution (handles special chars in descriptions)
   python3 -c "
 import sys
-header_path, out_path, title, desc, canonical, og_image, og_type, lcp_preload = sys.argv[1:]
-with open(header_path) as f:
-    content = f.read()
+header_path, partial_path, footer_path, out_path, title, desc, canonical, og_image, og_type, lcp_preload, asset_version = sys.argv[1:]
 replacements = {
     '{{TITLE}}':          title,
     '{{DESCRIPTION}}':    desc,
@@ -115,15 +119,21 @@ replacements = {
     '{{OG_IMAGE}}':       og_image,
     '{{OG_TYPE}}':        og_type,
     '{{LCP_PRELOAD}}':    lcp_preload,
+    '{{ASSET_VERSION}}':  asset_version,
 }
+with open(header_path) as f:
+    header = f.read()
+with open(footer_path) as f:
+    footer = f.read()
 for k, v in replacements.items():
-    content = content.replace(k, v)
+    header = header.replace(k, v)
+    footer = footer.replace(k, v)
+with open(partial_path) as f:
+    body = f.read()
 with open(out_path, 'w') as f:
-    f.write(content)
-" "$theme/header.html" "$out" "$title" "$desc" "$canonical" "$og_image_url" "$og_type" "$lcp_preload_tag"
+    f.write(header + body + footer)
+" "$theme/header.html" "$partial" "$theme/footer.html" "$out" "$title" "$desc" "$canonical" "$og_image_url" "$og_type" "$lcp_preload_tag" "$asset_version"
 
-  cat "$partial" >> "$out"
-  cat "$theme/footer.html" >> "$out"
   echo "  assembled: $rel"
 done
 

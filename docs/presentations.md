@@ -1,5 +1,5 @@
 # Presentations
-*Last verified: 2026-07-21*
+*Last verified: 2026-07-22*
 
 b2 can turn a topic into a live, animated, presenter-ready HTML deck — published alongside your
 website, built from a markdown file you keep editing in Obsidian (or any editor) for as long as the
@@ -61,7 +61,18 @@ each an explicit stage adaptation of the website's existing look, not a new pale
 mockup HTML file per direction — a fixed 6-slide sample set (title, section/agenda, content+bullets,
 data/chart, image-forward, closing) rendered full-viewport, stacked — reviewed in a gallery at
 `website/presentation-mockups/index.html` (same gallery mechanism as `website/mockups/`, a separate
-instance). Iterate in place, then lock: writes `website/presentation-themes/{name}/`.
+instance). If a real deck already exists (`docs/presentations/*/*.md`), its most recently modified
+file seeds the sample slides' tone and subject — adapted, not pasted verbatim, and still covering
+all 6 required types; otherwise sample content is invented as before. Iterate in place, then lock:
+writes `website/presentation-themes/{name}/`. Locking runs a one-time verification: if a real deck
+exists, builds it against the just-locked theme and diffs computed styles (type scale, colour,
+spacing) against the approved mockup, catching drift a mockup-only review would miss (e.g. an
+un-inherited base theme producing a mismatched font size). No real deck yet → verification is
+skipped and reported as pending, not silently dropped.
+
+**Theme CSS/JS paths must be root-relative** (`/theme/...`), never relative (`../assets/...`) —
+theme files are copied to multiple directories across the build pipeline, and a relative path
+resolves differently at each copy location.
 
 Running it again later — either to create a **second, differently-named** theme, or to redesign an
 existing one — is fully supported; nothing about the mechanism assumes only one theme exists.
@@ -69,6 +80,8 @@ existing one — is fully supported; nothing about the mechanism assumes only on
 ### 3. Build — `/b2:present-build {slug}`
 
 Applies the resolved theme, produces or updates `website/dist/presentations/{slug}/index.html`.
+Default mode is **per-slide interactive**: each new/changed slide is proposed, shown live in a
+browser, accepted or revised — an accept syncs both the built HTML and the source `.md` in one step.
 This is the step with real mechanism underneath it — see [How It Works](#how-it-works).
 
 ### 4. Edit — `/b2:present`
@@ -104,6 +117,9 @@ Native reveal.js primitives, no bespoke syntax invented:
 <!-- Visual: split-screen — dense text vs one bold sentence -->
 
 Note:
+- [keyword]
+- [keyword]
+
 [what to say]
 
 ---
@@ -117,7 +133,9 @@ Note:
 - `data-visibility="hidden"` — skipped in linear next/prev navigation, still rendered, still
   reachable from the presenter overview (the PowerPoint hidden-slide trick). `hidden ≠ confidential`.
 - `<!-- .element: class="fragment" -->` on any element — reveals it as its own step.
-- `Note:` — speaker notes, shown in presenter view.
+- `Note:` — speaker notes, shown in presenter view. Structure is keyword bullets first (up to the
+  first blank line, for a mid-talk glance), then full rehearsal prose ending with a `Transition:`
+  line — position, not a header, is the convention.
 - `---` — horizontal slide separator only; this dialect is deliberately linear (no vertical stacks).
 
 ### Theme resolution
@@ -145,37 +163,84 @@ The reason editing one slide doesn't regenerate the whole deck. No custom diff/p
 mirrors the same git-diff-and-interpret pattern the website build (`/b2:sync`) already uses for
 pages:
 
-1. Find the commit that last touched `website/dist/presentations/{slug}/index.html` — that's "since
-   the last build."
-2. One `git diff {that-commit} -- {deck.md}` call (committed + uncommitted changes together, one
+1. If `website/dist/presentations/{slug}/index.html` itself has **uncommitted git changes**, stop
+   before reconciling at all — reconciling against an output git doesn't know about risks silently
+   discarding or misreading those edits. Ask the user to commit first, or proceed with the no-git
+   path below (working-tree state becomes the baseline; that specific pre-build state won't be
+   recoverable from history afterward).
+2. Otherwise, find the commit that last touched that file — that's "since the last build" — and run
+   one `git diff {that-commit} -- {deck.md}` call (committed + uncommitted changes together, one
    consistent set of hunks — not two diffs stitched together, which would compare mismatched file
    versions and could misclassify a slide).
 3. Classify every slide id:
 
-| Classification | Signal | Action |
+| Classification | Git path (diff-based) | No-git path (content-compare) |
 |---|---|---|
-| Unchanged | Id in both source and prior output; no diff hunk in its range | Copy the existing `<section>` verbatim |
-| Changed | Id in both; a diff hunk falls in its range | Regenerate |
-| New | Id in source, not in prior output | Generate fresh |
-| Moved | Id in both; content byte-identical across both file revisions, only its position among siblings differs | Relocate the existing `<section>`, don't regenerate |
-| Removed | Id in prior output, not in current source | Drop from new output |
+| Unchanged | No diff hunk in the id's range | Id's `.md` content matches what's rendered in its `<section>` |
+| Changed | Diff hunk falls in the id's range → regenerate | `.md` content differs from rendered section → `.md` wins, regenerate |
+| New | Id in source, not in prior output → generate fresh | Same |
+| Moved | Content byte-identical across revisions, position differs → relocate, don't regenerate | Same content, different position → relocate |
+| Removed | Id in prior output, gone from source → drop silently | Drop only after asking the user — no git history to recover it from if wrong |
 
-Moved detection deliberately compares the slide's markdown content directly across both file
-revisions rather than trusting "no diff hunk" — a plain line-based diff reports a moved block as a
-delete-and-insert pair, which would otherwise misclassify it as changed.
+Moved detection deliberately compares the slide's markdown content directly rather than trusting "no
+diff hunk" — a plain line-based diff reports a moved block as a delete-and-insert pair, which would
+otherwise misclassify it as changed.
 
-**When confidence is degraded** (no git repo, or the prior output was never committed so there's no
-reliable "since when" boundary), the rule is: **regenerate rather than preserve.** An unnecessary
-regeneration is visible and recoverable (a slide that looks the same after rebuild); a wrongly
-preserved stale slide is invisible until someone notices content doesn't match the source.
+**No git repository** reuses the same per-slide-by-id parsing built for the git path, applied
+without a diff to anchor to — an AI content-compare, not a diff. This **reverses prior behavior**
+(a full unconditional regenerate on every no-git build): silent full regeneration risked losing
+hand-crafted design with no way to recover it, so it's semantic per-slide recovery now, with removal
+gated behind a confirmation since it's the one classification a wrong call can't undo. On this path
+the build also tells the user once: keep the project under git, or rely on the interactive
+visual-first flow (below) which writes source and output together so they can't drift apart.
 
 ### Sequential, deck-wide generation
 
-Every slide classified changed/new is authored **in one continuous pass, in deck order** — not one
-isolated AI call per slide. This is a deliberate contrast with `/b2:present-design`'s mockups, where
-2-3 concepts are *supposed* to diverge from each other (parallel, isolated agents). A single deck
-needs the opposite: one coherent visual and motion language end to end, which requires the whole
-deck in view while authoring, not fragments generated blind to their siblings.
+Every slide classified changed/new is authored **in one continuous pass, in deck order**, with each
+finished `<section>` appended to the output immediately (the file's shell — doctype, empty
+`.slides` container, init script — is written once up front; there's no longer a separate end-of-pass
+assembly step). This is a deliberate contrast with `/b2:present-design`'s mockups, where 2-3 concepts
+are *supposed* to diverge from each other (parallel, isolated agents). A single deck needs the
+opposite: one coherent visual and motion language end to end, which requires the whole deck in view
+while authoring, not fragments generated blind to their siblings.
+
+### Visual-first collaboration
+
+Default build mode: **per-slide interactive**. For each new/changed slide, propose a visual
+treatment if one would carry the message better than text, append the candidate section, and ask the
+user to check it live (`.../index.html#/{id}`, via a running `/b2:serve`) — like it or adjust. One
+accept bundles three things atomically: keep the visual, move any displaced text into that slide's
+notes, and sync the same content back into the source `.md` — no separate sync-permission prompt,
+since the user already saw the live result before accepting. Two alternate modes, chosen once up
+front (not re-asked per slide): **batch** (all proposals shown together, one approval round) and
+**passive** (no proposals unless explicitly requested).
+
+### Theme cross-sync
+
+Mid-build, if a slide's need looks like a theme-level gap rather than a one-off tweak, the build
+counts how many decks (`docs/presentations/*/*.md`) use `theme: {name}`. Only this deck on the theme
+→ judged and applied directly to the theme files, no permission ask (verified before the build
+reports done). 2+ decks on the theme → asks first, since the blast radius isn't provably zero.
+
+### Capture ratchet
+
+While building, genuine bugs fixed mid-slide (real defects — wrong values, race conditions, broken
+layout, not taste preferences) are tracked silently, then raised once as a batched question before
+the report: keep the fix local to this theme's `design.md` Anti-Patterns section, or promote it to
+the plugin-wide `shared/design/implementation-gotchas.md` so every theme benefits.
+
+### Verification
+
+Runs after generation, before the report — reuses `ui-review-expert`'s existing browser-detection
+order (MCP → `npx playwright` → CLI → halt), no new tooling:
+
+| Tier | Scope | Runs |
+|---|---|---|
+| 1 | Drive reveal.js through every slide, collect console errors | Always |
+| 2 | One screenshot of reveal.js's built-in Overview mode | Always |
+| 3 | Full-resolution screenshot + sampled computed-style/timing check | Only new/changed slides with a custom visual, illustration, or animation — **and** only if no human already approved it live via the interactive loop above (batch/passive modes, or an auto-applied theme cross-sync) |
+
+A material Tier 3 defect is fixed and re-checked before the report is written.
 
 ### The shared runtime
 
@@ -234,11 +299,14 @@ and mouse navigation all work without configuration (reveal.js defaults).
 
 ## Where It Might Not Work
 
-- **No git repository, or the deck's prior output was never committed.** Reconcile can't establish
-  "since when," so it falls back to regenerating the whole deck on every build. Correct and safe
-  (per the "regenerate over preserve" rule above), but you lose the benefit of surgical preservation
-  — hand-crafted per-slide detail on unrelated slides won't survive a rebuild in this state. Commit
-  your `website/dist/presentations/` output if you want surgical updates to actually work.
+- **No git repository, or the deck's prior output was never committed.** Reconcile falls back to
+  content-compare per slide instead of a diff — recovers unchanged/moved slides correctly in most
+  cases, but has no history to fall back on, so a removed slide always asks for confirmation instead
+  of dropping silently. Commit your `website/dist/presentations/` output if you want the more
+  reliable diff-based path.
+- **The output file has uncommitted changes when a build starts.** Reconcile stops and asks before
+  touching anything — commit those changes first, or accept that the pre-build state won't be
+  recoverable from git history afterward.
 - **Very large decks.** Sequential deck-wide generation trades speed for coherence — a large deck's
   full-context single pass is a heavier single build step than a hypothetical parallel-per-slide
   approach would be. No mitigation built for this; not yet observed as a real problem.

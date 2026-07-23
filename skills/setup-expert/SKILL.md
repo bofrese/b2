@@ -117,6 +117,32 @@ Do not create `website/dist/` — the build tool handles that.
 
 ---
 
+## Step 4b — Cache-Control Policy
+
+If `website/src/.htaccess` does not already exist, write it (Write tool):
+
+```apache
+# Cache policy — pairs with the ?v={hash} cache-busting query param the build
+# adds to /styles.css and /scripts.js: those two are safe to cache long-term
+# because their URL changes whenever their content does. HTML must always
+# revalidate since its URL never changes between deploys.
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(woff2?|jpe?g|png|webp|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
+```
+
+It's a dotfile under `website/src/`, so both build paths (`make` and the scripts fallback) copy it to `dist/.htaccess` automatically, same as any other non-`.md` asset — no separate wiring needed. Apache-only (the documented/tested host target); harmless if the eventual host isn't Apache — an unrecognized `.htaccess` is just ignored, not an error. If the file already exists (user customized it, or setup is re-running), leave it untouched.
+
+---
+
 ## Step 5 — Run First Build
 
 **If BUILD_TOOL=make:**
@@ -153,6 +179,7 @@ Setup complete.
   website/src/       ✓
   website/partials/  ✓
   website/docs/      ✓
+  .htaccess          ✓  (cache-control policy)    ← if newly written this run
   make               ✓  (built N files)    ← if BUILD_TOOL=make and make ran
 
 Run /b2:serve to preview your site in the browser.

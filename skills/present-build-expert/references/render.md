@@ -22,16 +22,36 @@ Read `references/reconcile.md` now and follow it. It backfills missing slide ids
 whether this is a full generate (`no-prior-build`) or a reconcile (prior build exists — classify
 each slide as unchanged / changed / new / moved / removed).
 
-## Step 3 — Generate (sequential, deck-wide)
+## Step 3 — Assemble incrementally while generating (sequential, deck-wide)
 
-Regardless of full-generate or reconcile, this step only touches slides classified **changed** or
-**new** (a full generate means every slide falls into "new"). Author them **in one continuous
-pass, in the deck's current order** — not one isolated call per slide — so the whole deck reads as
-one coherent hand-crafted piece. This is a deliberate difference from `present-design-expert`'s
-parallel-agent mockups: those 2-3 concepts are supposed to diverge from each other; this one deck
-is not.
+**Assembly is now driven by this step, not a separate end-of-pass write** (Step 4 below only
+finalizes). Before processing any slide, write the shell once:
 
-For each slide to generate:
+```bash
+root="$(pwd)"
+slug="{slug}"  # substitute actual slug
+theme="{theme}"  # substitute the resolved theme name
+mkdir -p "$root/website/dist/presentations/$slug"
+```
+
+Write `website/dist/presentations/{slug}/index.html` with the standard reveal.js shell — doctype,
+links to `../shared/reveal/dist/reveal.css` + `../shared/themes/{theme}/theme.css` (`{theme}` is the
+name resolved in the Theme Preamble, never a generic "the theme's CSS"), an **empty**
+`<div class="reveal"><div class="slides"></div></div>`, reveal.js init script enabling the notes
+plugin, and a `<script src="../shared/themes/{theme}/theme.js">` tag only if that file exists for
+this theme. The empty `<div class="slides"></div>` is the anchor every subsequent slide insertion
+targets.
+
+Then process every slide **in one continuous pass, in the deck's current order** — not one isolated
+call per slide — so the whole deck reads as one coherent hand-crafted piece, and so each slide's
+`<section>` is appended to the output immediately once it's ready (via Edit, replacing
+`</div></div>` with `  <section>...</section>\n  </div></div>` — i.e. insert before the closing
+anchor, then that becomes the new anchor for the next slide). This is a deliberate difference from
+`present-design-expert`'s parallel-agent mockups: those 2-3 concepts are supposed to diverge from
+each other; this one deck is not.
+
+Regardless of full-generate or reconcile, only slides classified **changed** or **new** get authored
+(a full generate means every slide falls into "new"). For each slide to generate:
 - Use the theme's slide-component pattern for that slide's apparent type (title / section / content
   / data / image / closing — infer from its content, the mockup set isn't an exhaustive taxonomy)
   as the **starting contract**, not a rigid mold. Extend it with bespoke per-slide craft — a unique
@@ -39,6 +59,8 @@ For each slide to generate:
   content — wherever the slide's `<!-- Visual: ... -->` comment or content calls for it. Never
   settle for the generic template when the content deserves better; this is the whole point of the
   two-level model.
+- **Visual-first collaboration** (see below) runs here, before the slide's section is finalized and
+  appended.
 - Translate `<!-- Visual: ... -->` comments into real visual treatment: inline SVG/CSS-drawn
   graphics for diagrams/charts/abstract compositions; for photographic imagery, either use an asset
   already in `docs/presentations/{slug}/assets/` or `website/theme/{THEME}/assets/` (site-shared),
@@ -48,7 +70,9 @@ For each slide to generate:
   through to the corresponding output element — reveal.js interprets `.fragment` natively, no
   translation needed.
 - Speaker notes: the source `Note:` block becomes `<aside class="notes">...</aside>` inside the
-  `<section>` — reveal.js's native notes-plugin marker, read by its speaker view.
+  `<section>` — reveal.js's native notes-plugin marker, read by its speaker view. Preserve the
+  keyword-bullets-then-prose structure from `slide-format.md` as-is inside the `<aside>` — no
+  translation needed, it's plain text either way.
 - Slide/hidden attributes: `<section id="{id}" data-slide-id="{id}"` — always both; add
   `data-visibility="hidden"` verbatim when the source slide has it. This is the only handling
   hidden slides need — reveal.js does the rest (skip in linear flow/count, shown in presenter
@@ -56,21 +80,62 @@ For each slide to generate:
 - Apply the pacing/beat discipline from the theme's `design.md` — fragments reveal on the deck's
   natural beats, not a fixed tap rhythm.
 
-For slides classified **unchanged** or **moved**: copy the existing `<section>` verbatim (moved
+For slides classified **unchanged** or **moved**: append the existing `<section>` verbatim (moved
 slides just relocate to their new position in the output order) from the current
 `website/dist/presentations/{slug}/index.html` — do not re-author them, this is what preserves the
-hand-crafted design across content edits elsewhere in the deck.
+hand-crafted design across content edits elsewhere in the deck. (Read that section's markup before
+Step 3 overwrites the file with the new shell, since the old file is about to be replaced.)
 
-For slides classified **removed**: omit their `<section>` from the new output entirely.
+For slides classified **removed**: skip them — never append their `<section>`, and (no-git path
+only) confirm with the user first per `reconcile.md`.
 
-## Step 4 — Assemble the output file
+### Visual-first collaboration + `.md` sync
 
-Write `website/dist/presentations/{slug}/index.html`: standard reveal.js shell (doctype, links to
-`../shared/reveal/dist/reveal.css` + `../shared/themes/{theme}/theme.css` — `{theme}` is the name
-resolved in the Theme Preamble, never a generic "the theme's CSS" — a `<div class="reveal"><div
-class="slides">` containing every `<section>` in the current source's order, reveal.js init script
-enabling the notes plugin, and a `<script src="../shared/themes/{theme}/theme.js">` tag only if
-that file exists for this theme).
+Default mode: **per-slide interactive**. For each slide being generated (new/changed only — copied
+unchanged/moved slides skip this, they're not being re-authored):
+
+1. If a visual could carry the message with less text, propose it.
+2. Append the candidate section as described above, then tell the user: "Updated slide '{id}' —
+   refresh and jump to `.../index.html#/{id}`. Like it, or adjust?" (Requires the user to have a
+   local server running and the deck open, e.g. via `/b2:serve` — if the build hasn't offered that
+   yet this session, offer it now before the loop starts.)
+3. Reject/adjust → replace that same section (Edit, matching its `id`) with the next candidate,
+   repeat.
+4. Accept → move any text displaced by the visual to the top of that slide's notes (bullets-then-
+   prose format per `slide-format.md`), and write the same content into the source `.md` — **one
+   accept covers both files**. No separate sync-permission prompt; the accept itself is the
+   permission, since the user is looking at the actual rendered result before saying yes.
+5. Move to the next slide.
+
+Two alternate modes, offered once up front (not re-asked per slide): **batch** (all proposals shown
+as one list, one approval round) and **passive** (no proposals, only on explicit request). In both,
+an approval still triggers the same three-part bundle (apply visual + move text to notes + sync
+`.md`) — only the proposal/approval timing differs from the default mode.
+
+### Capture ratchet
+
+During this step, silently track any **genuine bug** fixed while authoring a slide (a real defect —
+wrong values, race conditions, broken layout — not a style/taste preference). No interruption
+mid-build; the batched ask happens before the Step 7 report (see below).
+
+### Theme cross-sync
+
+While authoring a slide, if its need looks like a theme-level gap rather than a one-off bespoke
+tweak: grep `theme: {name}` across `docs/presentations/*/*.md` frontmatter to count decks on this
+theme.
+
+- **Only this deck uses the theme** → judge and apply directly to the theme files (no permission ask
+  — blast radius is provably zero), subject to the Tier 3 verification check below before reporting
+  done (this path is one of the cases where a human hasn't reviewed the change live).
+- **2+ decks use the theme** → ask before touching shared theme files.
+
+## Step 4 — Finalize
+
+By the time every slide has been processed in Step 3, `website/dist/presentations/{slug}/index.html`
+is already complete — every `<section>` was appended in the current source's order as it was
+generated or copied forward, and removed slides were never appended. This step is a checkpoint, not
+a rewrite: confirm every slide id in the current source appears exactly once in the output, in the
+source's order, and that no removed id remains. No full-file write happens here.
 
 ## Step 5 — Shared runtime
 
@@ -125,6 +190,46 @@ No special handling required. A client variant is just another slug — a copied
 independent `website/dist/presentations/{variant-slug}/`. The live presentation and the handout are
 the same URL; reveal.js's speaker view is a client-side mode switch, not a separate build.
 
+## Step 6.5 — Verification
+
+Reuses the same browser-detection order `ui-review-expert` already has (MCP → `npx playwright` →
+CLI → halt) — no new tooling. Gated by the slide classification already computed in Step 2 — no new
+detection logic. Evidence lives in the report text itself (Step 7), not a separate artifact. Reuses
+whichever local server is already running from the Step 3 collaboration loop, or starts one now if
+none was needed this build (e.g. a fully passive-mode or no-interactive-slides run).
+
+- **Tier 1 (always, cheap, deck-size-independent):** one `browser_evaluate` call that
+  programmatically drives reveal.js through every slide (`Reveal.slide(i)` in a loop, inside the one
+  call), collecting console errors across the whole deck.
+- **Tier 2 (always, cheap):** one screenshot of reveal.js's built-in Overview mode
+  (`Reveal.toggleOverview()`) — a full-deck visual sanity pass in a single shot.
+- **Tier 3 (gated, expensive):** for slides classified new/changed *and* carrying a
+  `<!-- Visual: -->` treatment, a custom illustration/SVG, or timing/animation properties — one
+  full-resolution screenshot + one batched computed-style/animation-sampling `evaluate` (timing
+  properties sampled at N timestamps via `requestAnimationFrame`/`setTimeout` in one call, no
+  per-frame screenshots), scoped to just those slides. **Skip entirely for slides that went through
+  the default per-slide interactive propose/accept loop** — the user's live accept already is the
+  verification. Apply Tier 3 only when no human reviewed the rendered result this build: batch mode,
+  passive mode, or the theme cross-sync single-deck-on-theme auto-apply path. A changed slide that's
+  a pure text edit (no visual comment touched, no new layout) skips Tier 3 regardless of mode.
+- **Content-discipline checklist** (per slide touched this build): what is this slide's one core
+  claim — does the illustration state it, or does the text restate what the illustration already
+  shows?
+
+If Tier 3 finds a material defect, fix it and re-run that slide's Tier 3 check before reporting.
+
+## Capture-ratchet ask
+
+If any genuine bugs were tracked silently during Step 3, ask once per entry before the report: "Fix
+found: {one-line description}. Keep it local to this theme's `design.md` Anti-Patterns section, or
+share it with every theme via `${CLAUDE_PLUGIN_ROOT}/shared/design/implementation-gotchas.md`?"
+
+- **Local** → append to `website/presentation-themes/{theme}/design.md`'s `## Anti-Patterns` section.
+- **Shared** → read `${CLAUDE_PLUGIN_ROOT}/shared/design/implementation-gotchas.md` first (skip if
+  an equivalent gotcha is already documented there), then append. If the write fails (plugin
+  directory not writable), tell the user the promotion couldn't be written and fall back to
+  appending it locally instead, so the entry isn't lost.
+
 ## Step 7 — Report
 
 ```
@@ -134,6 +239,10 @@ the same URL; reveal.js's speaker view is a client-side mode switch, not a separ
   Relocated: N slides (moved)
   Removed: N slides
   IDs assigned: N (only if > 0)
+
+Verification: Tier 1 (console) clean | N console error(s) — {detail}
+              Tier 2 (overview) — {any visible anomaly, or "clean"}
+              Tier 3 ({N} slide(s) checked) — {clean, or defects found+fixed}
 
 Live at: website/dist/presentations/{slug}/index.html
 Deep links: .../index.html#/{slide-id}

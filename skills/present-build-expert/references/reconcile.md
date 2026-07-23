@@ -55,8 +55,15 @@ dist_html="website/dist/presentations/$slug/index.html"
 
 if [ ! -f "$root/$dist_html" ]; then
   echo "no-prior-build"
+elif ! git -C "$root" rev-parse --git-dir >/dev/null 2>&1; then
+  echo "no-git"
 else
-  if git -C "$root" rev-parse --git-dir >/dev/null 2>&1; then
+  # Separate, simpler check: does the output file itself have uncommitted changes?
+  # Independent of the semantic reconcile below — a literal git-status check on one file.
+  uncommitted_html=$(git -C "$root" status --short -- "$dist_html")
+  if [ -n "$uncommitted_html" ]; then
+    echo "uncommitted-html"
+  else
     last_commit=$(git -C "$root" log -1 --format="%H" -- "$dist_html" 2>/dev/null)
     if [ -n "$last_commit" ]; then
       echo "=== Changes since last build (committed + uncommitted) ==="
@@ -66,8 +73,6 @@ else
       git -C "$root" diff HEAD -- "$md_file"
       git -C "$root" status --short -- "$md_file"
     fi
-  else
-    echo "no-git"
   fi
 fi
 ```
@@ -81,15 +86,27 @@ translation. One call, one file version to compare against, no translation neede
 
 **`no-prior-build`** → full generate (see `render.md`): every slide is authored fresh, no reconcile needed.
 
-**When classification confidence is degraded, regenerate rather than preserve.** This applies
-whenever the diff can't be fully trusted — `no-git` (no repository at all), the output-untracked
-branch above only sees uncommitted changes and can't see committed history since the actual last
-build, or any case where a slide's change status is genuinely ambiguous from the diff. Regenerating
-an unchanged slide costs wasted rework that's visible and reported (a slide that looks identical
-after rebuild); wrongly preserving a changed slide costs silent staleness with no visible signal at
-all. Default to the recoverable mistake.
+**`uncommitted-html`** → stop before reconciling at all. The output file itself has changes git
+doesn't know about — reconciling against it risks silently discarding or misreading those edits.
+Tell the user, and offer to commit: "`website/dist/presentations/{slug}/index.html` has uncommitted
+changes. Commit them first so the next build can reconcile correctly, or I can proceed and treat the
+working-tree version as current (git history for this specific state won't be recoverable if this
+build overwrites it)." Wait for the user's choice before continuing. If the user chooses to proceed:
+use the **no-git-path classification** below, not the git-diff path — the git-tracked `dist_html`
+no longer reflects what's actually on disk, so a diff computed against it can't be trusted; the
+semantic per-slide compare reads the live file directly and doesn't have that problem.
 
-**Prior build exists** → use the diff output plus the current file to classify every slide id:
+**`no-git`** (no repository at all) → **this reverses the previous documented behavior** (regenerate
+unconditionally) in favor of semantic per-slide recovery, since silent regeneration risks losing
+hand-crafted design with no way to recover it. Sequencing:
+
+1. First, explain the two supported maintenance flows: "No git repository found, so I can't diff
+   what changed. Two ways to avoid this going forward: (a) keep this project under git and commit
+   `.md` edits normally, or (b) always use the interactive visual-first flow in this build — it
+   writes the `.md` and the rendered output together in one action, so they never drift apart."
+2. Then run the semantic per-slide reconcile below to actually recover this build.
+
+**Prior build exists (git path)** → use the diff output plus the current file to classify every slide id:
 
 - **Unchanged** — the id exists in both the current source and the existing
   `website/dist/presentations/{slug}/index.html` (as `<section data-slide-id="{id}">`), and no diff
@@ -116,6 +133,26 @@ all. Default to the recoverable mistake.
 
 If the diff is empty but the mtime check suggested staleness (rare — e.g. a touched but unchanged
 file), treat every slide as unchanged; nothing to regenerate.
+
+**Prior build exists (no-git path)** → reuse the same per-slide-by-id parsing (built for the git
+path, applied as-is here), but swap the "how do we detect changed" signal since there's no diff to
+anchor to. For each slide id present in both the current `.md` and the existing
+`website/dist/presentations/{slug}/index.html`: read-and-reason whether the id's `.md` content still
+matches what's rendered in that `<section>` (AI-interpreted, not algorithmic — same philosophy as
+the git path, just without a diff hunk).
+
+| Classification | Git-based (existing, unchanged) | No-git (new) |
+|---|---|---|
+| Unchanged | No diff hunk in range | id's `.md` content matches what's rendered in the `.html` section |
+| Changed | Diff hunk in range → regenerate | id's `.md` content differs from the `.html` section → **`.md` wins**, regenerate |
+| New | id in `.md`, not in prior output | id in `.md`, not in prior output → generate |
+| Moved | Same content, different position → relocate | Same content, different position → relocate (output order always follows `.md`'s current order regardless) |
+| Removed | id in prior output, gone from `.md` → drop silently | id in prior output, gone from `.md` → **ask before dropping** |
+
+The only behavioral asymmetry from the git path is on removal: with git, a dropped slide's HTML is
+recoverable from history, so silent auto-drop stays safe; without git, dropping is permanent, so
+that path alone gets a confirmation ask: "Slide '{id}' no longer appears in the source `.md` — drop
+it from the built deck? (yes/no)"
 
 Output slide order always follows the **current source file's** order, regardless of each slide's
 classification.

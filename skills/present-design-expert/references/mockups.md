@@ -20,6 +20,15 @@ Read `website/docs/status.md` to retrieve the confirmed directions and interview
 context, motion intensity, audience) from Phase 1. Paste all of this into each agent prompt
 verbatim.
 
+**Real-content check (optional).** Look for the most recently modified `docs/presentations/*/*.md`
+(by file mtime). If one exists, read it and pass a short excerpt (a handful of representative
+slides — title, one content slide, one data slide if present) into each agent prompt under a
+`REAL DECK CONTENT (inspiration only)` block, with the instruction: adapt this real content's tone
+and subject matter into the fixed 6-slide sample below — do not paste it verbatim, and still cover
+all 6 required slide types even if the real deck doesn't have all of them. If no presentation `.md`
+exists yet anywhere in the project, omit this block entirely and fall back to inventing sample
+content as before.
+
 Ensure the output directory exists:
 
 ```bash
@@ -68,6 +77,14 @@ DESIGN KNOWLEDGE (only if motion intensity is moderate/dynamic):
 PACING PHILOSOPHY (always include):
 
 [PASTE the Pacing & Beat Philosophy section from shared/design/presentation-design.md]
+
+---
+REAL DECK CONTENT (inspiration only — only if a real presentation .md exists):
+
+[PASTE a short excerpt of the most recently modified docs/presentations/*/*.md — a handful of
+representative slides. Adapt this content's tone and subject matter into the fixed 6-slide sample
+below; do not paste verbatim, and still cover all 6 required slide types. Omit this block entirely
+if no presentation .md exists yet.]
 
 ---
 MOCKUP REQUIREMENTS:

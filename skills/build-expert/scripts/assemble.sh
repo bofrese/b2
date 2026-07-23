@@ -61,6 +61,11 @@ if [ -d "$theme/assets" ]; then
   cp -R "$theme/assets/." "$dist/assets/"
 fi
 
+# Cache-busting query param for /styles.css and /scripts.js — an 8-char hash of their
+# own content, so the URL only changes (and old cached copies get orphaned) when the
+# asset actually does. Pairs with the long-cache Cache-Control rules in website/src/.htaccess.
+asset_version=$(cat "$theme"/*.css "$theme"/*.js 2>/dev/null | shasum | cut -c1-8)
+
 # Extract a single-line frontmatter field, stripping surrounding quotes.
 fm_get() {
   local file="$1" key="$2"
@@ -119,9 +124,7 @@ find "$partials" -name "*.html" | LC_ALL=C sort | while read -r partial; do
 
   python3 -c "
 import sys
-header_path, out_path, partial_path, footer_path, title, desc, canonical, og_image, robots, lcp_preload = sys.argv[1:]
-with open(header_path) as f:
-    content = f.read()
+header_path, out_path, partial_path, footer_path, title, desc, canonical, og_image, robots, lcp_preload, asset_version = sys.argv[1:]
 replacements = {
     '{{TITLE}}': title,
     '{{DESCRIPTION}}': desc,
@@ -131,16 +134,21 @@ replacements = {
     '{{OG_IMAGE}}': og_image,
     '{{ROBOTS}}': robots,
     '{{LCP_PRELOAD}}': lcp_preload,
+    '{{ASSET_VERSION}}': asset_version,
 }
+with open(header_path) as f:
+    content = f.read()
 for k, v in replacements.items():
     content = content.replace(k, v)
 with open(partial_path) as f:
     body = f.read()
 with open(footer_path) as f:
     footer = f.read()
+for k, v in replacements.items():
+    footer = footer.replace(k, v)
 with open(out_path, 'w') as f:
     f.write(content + body + footer)
-" "$theme/header.html" "$out" "$partial" "$theme/footer.html" "$title" "$desc" "$canonical" "$og_image_url" "$robots_tag" "$lcp_preload_tag"
+" "$theme/header.html" "$out" "$partial" "$theme/footer.html" "$title" "$desc" "$canonical" "$og_image_url" "$robots_tag" "$lcp_preload_tag" "$asset_version"
 
   echo "  assembled: $rel"
 done
