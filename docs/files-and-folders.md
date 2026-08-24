@@ -1,5 +1,5 @@
 # Files and Folders
-*Last verified: 2026-07-16*
+*Last verified: 2026-07-24*
 
 Everything below is created **in your project**, not inside the plugin. Only `b2/` (this plugin's own code) is installed by Claude Code — everything in this document is output the plugin writes into the project you run it in.
 
@@ -11,15 +11,14 @@ docs/
   product/            ← vision.md, website-design-brief.md, illustration-style.md
   presentations/       ← /b2:present output
 
-ai/
-  illustrations.md     ← /b2:illustrate session log
-
 website/
   docs/
     status.md           ← phase-completion tracker, read by /b2 for routing
     decisions.md         ← brand voice guide, read by every AI-driven command
     content-types.md    ← page type definitions, from /b2:structure
+    illustrations.md    ← /b2:illustrate session log
   src/                  ← your markdown content (human-authored, source of truth)
+    .htaccess            ← Cache-Control policy, written once by /b2:setup, copied to dist/
   partials/             ← AI-generated semantic HTML (never edit by hand)
   theme/{name}/         ← visual layer: CSS, components, header/footer, scripts
   mockups/              ← /b2:design's three concepts + gallery, pre-theme
@@ -59,6 +58,7 @@ website/dist/page.html           assembled: header + partial + footer + theme as
 | `website/docs/status.md` | `/b2:vision` (creates); every skill updates | `/b2` (routing); every skill (phase detection) |
 | `website/docs/illustrations.md` | `/b2:illustrate` | reference only |
 | `website/docs/content-types.md` | `/b2:structure` | `/b2:sync`, `/b2:design`, `/b2:write` |
+| `website/src/.htaccess` | `/b2:setup` (only if not already present) | copied to `dist/.htaccess` on every build, same as any other non-`.md` `src/` asset |
 | `website/src/*.md` | `/b2:write` (+ stub files from `/b2:structure`) | `/b2:sync` |
 | `website/src/images/*.png` | `/b2:image` (API) or manually via the `/b2:illustrate` flow | site content |
 | `website/mockups/concept-N.html`, `index.html` | `/b2:design` Phase C/D | your review, before a theme is chosen |

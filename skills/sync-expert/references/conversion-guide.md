@@ -224,6 +224,32 @@ Read all `website/src/posts/*.md` files. Extract frontmatter. Sort by `date` des
 
 ---
 
+## Derived Teaser Sections (optional, project-declared)
+
+Some pages embed a short, reordered subset of another content type's items — most commonly a homepage teaser of a few showcase/portfolio/post items, restyled and abbreviated for a denser context. Left unmanaged, this is a silent duplication trap: the teaser is hand-authored once, the source type gets edited or reordered later, and nothing re-derives the teaser — it just quietly goes stale.
+
+This mechanism is **opt-in and fully project-declared** — nothing in this plugin knows what "showcase" or "homepage" mean. A project turns it on by adding a `Feeds:` line under the *source* type's entry in its own `website/docs/content-types.md`:
+
+```
+## showcase
+Path: src/showcase.md
+...
+Item fields: name, url, screenshot, tag, teaser (short one-liner — see Feeds), full description
+Feeds: src/index.md → .showcase-grid section (first 4 items, this page's current order; use each item's `teaser` field instead of the full description)
+```
+
+**Reading a `Feeds:` declaration:**
+- **Source** — the type this line lives under. Its current items and their order are the source of truth.
+- **Target** — the page and section named after `→`. Only that section is regenerated; the rest of the target page's partial is left untouched (same surgical-integration principle as any other partial edit).
+- **Selection** — which items and how many (e.g. "first 4, source order"). Re-derive this every time, don't cache a prior selection.
+- **Field mapping** — which source fields populate the target markup, and any target-specific field (like a short `teaser` one-liner) that exists precisely so the dense teaser context doesn't have to reuse the source's full-length copy verbatim.
+
+**Generating the target section:** use the *target* page's existing component for that section (e.g. `.showcase-grid` / `.showcase-card`, distinct from the source page's own listing component) — a derived teaser and its source almost always want different density, so they should already be on different classes in `components.md`. Populate it with the selected items in the declared order, using the declared field mapping. Do not touch any other section of the target page's partial.
+
+`Step 1c` in `SKILL.md` covers when this makes a page stale even though its own `.md` didn't change.
+
+---
+
 ## URL Slug Generation
 
 Derive the URL path for index links from the filename. **Include the `.html` extension** — Apache httpd and `python3 -m http.server` serve flat `.html` files and do not auto-resolve extensionless URLs:

@@ -45,6 +45,20 @@ slide-component classes (`.slide-title`, `.slide-section`, `.slide-content`, `.s
 scale). This is the design contract `present-build-expert` applies when generating a deck's actual
 slides — semantic, reusable, not a copy-paste of the mockup's literal markup.
 
+**Two mockup-format assumptions that do not survive generalization — check both before locking:**
+
+1. **No component's resting CSS may be `opacity:0`.** The mockup is a continuous scroll animated by
+   GSAP ScrollTrigger; a real deck is reveal.js, paginated via `class="fragment"` — nothing ever fires
+   ScrollTrigger there, so anything hidden by default in `theme.css` stays invisible forever. Every
+   component defaults to visible; staged reveals are the *deck's* job via reveal.js's native
+   `.fragment`, never baked into the theme.
+2. **Any shared "slide shell" rule must be scoped to an element type, never a bare class/attribute
+   selector.** `[class^="slide-"]` also matches reveal.js's own internal elements
+   (`.slide-background`, `.slide-number`) and corrupts its scale-to-fit/centering math — invisible at
+   the deck's native aspect ratio, breaks visibly at any other one. Use `section[class^="slide-"]`.
+
+Full detail and why these matter in `${CLAUDE_PLUGIN_ROOT}/shared/design/implementation-gotchas.md`.
+
 ### `theme.js`
 
 Any shared JS the concept used (motion/3D setup, reveal-event hooks). Keep bespoke per-slide

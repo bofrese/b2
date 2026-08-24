@@ -102,7 +102,15 @@ Read the current `website/theme/{THEME}/components.md` class list (and its `## R
 
 Convert flagged partials per the conversion guide's "Redesign — new theme vocabulary" section (remap renamed classes, redo sections whose classes were dropped or whose paradigm changed, preserve reused structure).
 
-If no stale files are found (individual, index, or theme-vocabulary drift): report "Nothing to sync. All layout files are up to date." and stop.
+---
+
+## Step 1c — Derived-section drift (project-declared teasers)
+
+Some projects declare, in their own `website/docs/content-types.md`, that one page embeds a bounded, reordered subset of another content type's items (e.g. a homepage teaser of showcase items) — see the conversion guide's "Derived Teaser Sections" for the declaration format (a `Feeds:` line under the source type). This is opt-in per project — most `content-types.md` files won't have one, and none of this applies when they don't.
+
+If the current `content-types.md` has any `Feeds:` declarations: for each one, compare the source type's current item set/order (read its `.md`) against what the target page's declared section currently shows (read its partial). Any difference — items added, removed, or reordered — makes the target page stale-vs-derived-section, even though the target's own `.md` didn't change. Add it to the conversion set; regenerate only the declared section per the conversion guide, leaving the rest of the target partial untouched.
+
+If no stale files are found (individual, index, theme-vocabulary drift, or derived-section drift): report "Nothing to sync. All layout files are up to date." and stop.
 
 ---
 

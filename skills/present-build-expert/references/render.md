@@ -16,6 +16,12 @@ Read, in full:
 If `docs/presentations/{slug}/work.md` exists, skim it for context but never pull content from it
 directly into slides — it's raw material, not approved copy.
 
+**Report scope before proceeding on a full generate:** slide count, and how many carry a
+`<!-- Visual: -->` comment implying bespoke craft (chart, diagram, sequence, etc.). A "verify the
+theme against a real deck" ask is not the same request as "build this deck" — a 40+ slide talk with
+several custom diagrams is a materially different commitment than sampling 2–3 slides, and the user
+should choose that scope explicitly rather than discover it mid-build.
+
 ## Step 2 — ID backfill and reconcile decision
 
 Read `references/reconcile.md` now and follow it. It backfills missing slide ids and determines
@@ -200,18 +206,41 @@ none was needed this build (e.g. a fully passive-mode or no-interactive-slides r
 
 - **Tier 1 (always, cheap, deck-size-independent):** one `browser_evaluate` call that
   programmatically drives reveal.js through every slide (`Reveal.slide(i)` in a loop, inside the one
-  call), collecting console errors across the whole deck.
+  call), collecting console errors across the whole deck. Do this after a genuine full navigation
+  (`page.goto`, not a `#/hash`-only change) — a hash-only nav reuses the already-loaded DOM/JS and can
+  mask a bug that only reproduces on cold load. Include at least one pass that steps every fragment on
+  a slide forward (`Reveal.next()` repeatedly, or `Reveal.slide(i, 0, lastFragment)`), not just its
+  resting state — a fragment stuck permanently hidden looks identical to "not yet revealed" until
+  actually advanced.
+- **Tier 1b (always, cheap): resize to one non-native aspect ratio** (e.g. an iPad landscape,
+  ~4:3 — the deck's own configured `width`/`height` is 16:9 and will not exercise this) and repeat the
+  slide sweep. reveal.js's scale-to-fit/centering math only does real work off its native canvas
+  size — a broken shell selector or a `!important` fight with reveal's own CSS is invisible at the
+  native size and only surfaces as off-centre/cut-off content at any other ratio. See
+  `implementation-gotchas.md` for two real bugs this specifically caught.
 - **Tier 2 (always, cheap):** one screenshot of reveal.js's built-in Overview mode
   (`Reveal.toggleOverview()`) — a full-deck visual sanity pass in a single shot.
 - **Tier 3 (gated, expensive):** for slides classified new/changed *and* carrying a
   `<!-- Visual: -->` treatment, a custom illustration/SVG, or timing/animation properties — one
-  full-resolution screenshot + one batched computed-style/animation-sampling `evaluate` (timing
+  full-resolution screenshot at **fragment index −1 (rest state)**, not just the hash-loaded
+  "everything revealed" default (a boxed/panelled fragment whose chrome isn't itself marked
+  `fragment` renders visible at rest — invisible unless rest state is actually screenshotted; see
+  `implementation-gotchas.md`) + one batched computed-style/animation-sampling `evaluate` (timing
   properties sampled at N timestamps via `requestAnimationFrame`/`setTimeout` in one call, no
   per-frame screenshots), scoped to just those slides. **Skip entirely for slides that went through
   the default per-slide interactive propose/accept loop** — the user's live accept already is the
   verification. Apply Tier 3 only when no human reviewed the rendered result this build: batch mode,
   passive mode, or the theme cross-sync single-deck-on-theme auto-apply path. A changed slide that's
   a pure text edit (no visual comment touched, no new layout) skips Tier 3 regardless of mode.
+- **Structural check (always, cheap, part of Tier 1):** any component with its own centering/
+  `max-width` (a `.split`, grid, or comparison layout) must be a direct child of the slide, not
+  nested inside a narrower single-column wrapper built for a different pattern — that silently caps
+  the component at the wrapper's width on every viewport. Grep the generated markup for this before
+  reporting a slide done, don't rely on catching it visually at one window size.
+- **Data-consistency check (always, cheap):** for any slide comparing two or more groups (before/
+  after, A/B, two chart series), confirm every group uses identical category labels in identical
+  order, and confirm any plotted chart's points are computed from the actual data, not eyeballed —
+  see `implementation-gotchas.md`.
 - **Content-discipline checklist** (per slide touched this build): what is this slide's one core
   claim — does the illustration state it, or does the text restate what the illustration already
   shows?
