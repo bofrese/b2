@@ -10,7 +10,7 @@ Generate a complete CSS file covering all semantic components. Organise into sec
 
 ```css
 /* ============================================================
-   B2 Theme — [Theme Name]
+   B2 Theme - [Theme Name]
    Generated: YYYY-MM-DD
    ============================================================ */
 
@@ -18,10 +18,10 @@ Generate a complete CSS file covering all semantic components. Organise into sec
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; font-family: ...; }
 
-/* === Fonts — MUST include font-display: swap =============== */
+/* === Fonts - MUST include font-display: swap =============== */
 /* font-display: swap is required for Core Web Vitals (LCP).  */
 /* Google Fonts ?display=swap handles this when using their   */
-/* CDN — include it in the <link> URL in header.html.         */
+/* CDN - include it in the <link> URL in header.html.         */
 /* For self-hosted fonts, declare explicitly:                 */
 /*                                                            */
 /* @font-face {                                               */
@@ -30,7 +30,7 @@ body { margin: 0; font-family: ...; }
 /*   font-display: swap;   ← required                        */
 /* }                                                          */
 
-/* === Images — prevent CLS (layout shift) =================== */
+/* === Images - prevent CLS (layout shift) =================== */
 /* All <img> elements must have width + height attributes set  */
 /* in the HTML. This CSS ensures they behave correctly even    */
 /* when those attributes are present.                         */
@@ -50,8 +50,8 @@ p { ... }
 
 /* === Shared Components ====================================== */
 /* Components used across multiple content types */
-.hero { ... }                /* Full-height hero — entry point pages only */
-.page-hero { ... }           /* Compact dark hero — destination pages (docs, about, etc.) */
+.hero { ... }                /* Full-height hero - entry point pages only */
+.page-hero { ... }           /* Compact dark hero - destination pages (docs, about, etc.) */
 .page-hero__inner { ... }
 .page-hero__eyebrow { ... }
 .page-hero__title { ... }
@@ -87,11 +87,11 @@ p { ... }
 @media (max-width: 768px) { ... }
 ```
 
-The **reusable component vocabulary** (the classes content partials will use) must be semantic class names defined in components.md — this is the theme↔content contract. Beyond that, use whatever CSS the design needs: `@keyframes`, custom properties, `@supports`, container queries, complex selectors, pseudo-elements, and IDs as animation/JS hooks for bespoke one-off effects are all fine. Do not flatten the mockup's bespoke CSS to fit a "semantic classes only" rule — carry it in full. Ensure mobile-responsive layout and gate motion behind `prefers-reduced-motion`.
+The **reusable component vocabulary** (the classes content partials will use) must be semantic class names defined in components.md - this is the theme↔content contract. Beyond that, use whatever CSS the design needs: `@keyframes`, custom properties, `@supports`, container queries, complex selectors, pseudo-elements, and IDs as animation/JS hooks for bespoke one-off effects are all fine. Do not flatten the mockup's bespoke CSS to fit a "semantic classes only" rule - carry it in full. Ensure mobile-responsive layout and gate motion behind `prefers-reduced-motion`.
 
-**Shared token classes for repeated content patterns.** If the design has more than one component that displays the same *kind* of content (e.g. any component showing commands/code: a terminal window, a process/timeline step list, inline code in prose), define the colour/style tokens for that content once as small reusable classes (e.g. `.cmd`, `.prompt`, `.comment` for a command-output convention) rather than re-declaring the same colours scoped separately under each component (`.terminal__body .cmd`, `.process__commands .cmd`, …). Scoped-per-component duplicates drift out of sync when one gets tweaked later and the others don't — the whole point of a design system is that "a command looks like a command" everywhere it appears.
+**Shared token classes for repeated content patterns.** If the design has more than one component that displays the same *kind* of content (e.g. any component showing commands/code: a terminal window, a process/timeline step list, inline code in prose), define the colour/style tokens for that content once as small reusable classes (e.g. `.cmd`, `.prompt`, `.comment` for a command-output convention) rather than re-declaring the same colours scoped separately under each component (`.terminal__body .cmd`, `.process__commands .cmd`, …). Scoped-per-component duplicates drift out of sync when one gets tweaked later and the others don't - the whole point of a design system is that "a command looks like a command" everywhere it appears.
 
-**Selector scoping for decorative sibling groups.** When a component has a small fixed set of purely decorative repeated elements sharing a parent with a non-decorative element (e.g. status dots next to a text label, bullet icons next to a caption), give the decorative elements their own class and style that — never a bare tag selector like `.parent span` or `.parent > *`. A bare selector silently catches the sibling label too if it happens to use the same tag, visibly breaking it (e.g. squashing a text label into a tiny circle because it inherited `width/height/border-radius` meant for dots).
+**Selector scoping for decorative sibling groups.** When a component has a small fixed set of purely decorative repeated elements sharing a parent with a non-decorative element (e.g. status dots next to a text label, bullet icons next to a caption), give the decorative elements their own class and style that - never a bare tag selector like `.parent span` or `.parent > *`. A bare selector silently catches the sibling label too if it happens to use the same tag, visibly breaking it (e.g. squashing a text label into a tiny circle because it inherited `width/height/border-radius` meant for dots).
 
 ---
 
@@ -99,7 +99,7 @@ The **reusable component vocabulary** (the classes content partials will use) mu
 
 Enumerate every semantic class used in the chosen mockup (across all theme HTML files). Group by context:
 
-**Redesign (a previous `components.md` existed):** the mockups were already generated with the old vocabulary as a soft reuse hint, so keep names identical wherever a component maps 1:1 to the old one (`.hero`, `.site-nav`, `.post-card`, `.content-block`…) — this lets existing partials survive the theme swap. Only rename or drop a class when the new design genuinely changes that component's structure, and add new classes for new structure. At the end of the file, note the delta so the next sync knows what to re-evaluate:
+**Redesign (a previous `components.md` existed):** the mockups were already generated with the old vocabulary as a soft reuse hint, so keep names identical wherever a component maps 1:1 to the old one (`.hero`, `.site-nav`, `.post-card`, `.content-block`…) - this lets existing partials survive the theme swap. Only rename or drop a class when the new design genuinely changes that component's structure, and add new classes for new structure. At the end of the file, note the delta so the next sync knows what to re-evaluate:
 
 ```markdown
 ## Redesign delta (vs previous theme)
@@ -132,19 +132,19 @@ Classes used across multiple content types or in global layout.
 | `.site-nav__list` | Nav item list |
 | `.site-nav__item` | Individual nav item |
 | `.site-nav__link` | Nav link |
-| `.site-nav--open` | State class — nav open on mobile |
+| `.site-nav--open` | State class - nav open on mobile |
 
 ## Page (root-level one-off pages)
 
 **Entry points** (index, home, landing): use `.hero` + mascot panel.
 
-**Destination pages** (about, docs, contact, etc.): use `.page-hero` as the intro section — compact dark-background header with eyebrow, h1, and subtitle. No mascot. Then `.content-block` / `.content-block--alt` alternating sections.
+**Destination pages** (about, docs, contact, etc.): use `.page-hero` as the intro section - compact dark-background header with eyebrow, h1, and subtitle. No mascot. Then `.content-block` / `.content-block--alt` alternating sections.
 
-`page-hero` is REQUIRED in the components table and CSS — even if no mockup explicitly shows it. It is always needed for destination pages.
+`page-hero` is REQUIRED in the components table and CSS - even if no mockup explicitly shows it. It is always needed for destination pages.
 
 | Class | Usage |
 |-------|-------|
-| `.page-hero` | Compact dark-bg intro — destination pages only |
+| `.page-hero` | Compact dark-bg intro - destination pages only |
 | `.page-hero__inner` | Max-width container inside page-hero |
 | `.page-hero__eyebrow` | Orange pill label (page name) |
 | `.page-hero__title` | Bold white h1; `em` renders in accent colour |
@@ -175,13 +175,13 @@ Classes used across multiple content types or in global layout.
 
 **Completeness rule:** If a class is in any mockup HTML or theme file but not in this table, `/b2:sync` will not know it exists and may invent alternatives. Audit all HTML after generating theme files.
 
-**SEO rule:** The `components.md` table must note which components carry H1 (`.hero`, `.page-hero`) — each should render exactly one `<h1>` per page. The `sync-expert` skill uses this as a constraint when generating partials.
+**SEO rule:** The `components.md` table must note which components carry H1 (`.hero`, `.page-hero`) - each should render exactly one `<h1>` per page. The `sync-expert` skill uses this as a constraint when generating partials.
 
 ---
 
 ## header.html
 
-`header.html` is the full HTML document open — not just a navigation fragment. It must contain the complete `<head>` block and open `<body>`, then the `<header>` element. Assembly (whether via the project's Makefile or build-expert's bundled `assemble.sh`) injects per-page SEO values into the placeholders below, then concatenates:
+`header.html` is the full HTML document open - not just a navigation fragment. It must contain the complete `<head>` block and open `<body>`, then the `<header>` element. Assembly (whether via the project's Makefile or build-expert's bundled `assemble.sh`) injects per-page SEO values into the placeholders below, then concatenates:
 
 ```
 header.html (with {{PLACEHOLDERS}} filled) + partials/page.html + footer.html > dist/page.html
@@ -189,7 +189,7 @@ header.html (with {{PLACEHOLDERS}} filled) + partials/page.html + footer.html > 
 
 So the assembled `dist/*.html` files are only valid HTML if `header.html` opens the document and `footer.html` closes it.
 
-**Required structure — include the full SEO block, using these exact placeholder tokens (filled per-page at build time from `src/*.md` frontmatter — do not write literal site values here):**
+**Required structure - include the full SEO block, using these exact placeholder tokens (filled per-page at build time from `src/*.md` frontmatter - do not write literal site values here):**
 
 ```html
 <!DOCTYPE html>
@@ -198,7 +198,7 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ═══ SEO — Core ══════════════════════════════════════════ -->
+  <!-- ═══ SEO - Core ══════════════════════════════════════════ -->
   <!-- {{TITLE}}/{{DESCRIPTION}}/{{CANONICAL}} are filled per page  -->
   <!-- at build time from src/*.md title:/description: frontmatter -->
   <!-- and SITE_URL in b2.cfg. Never replace these with static text. -->
@@ -208,7 +208,7 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
   {{ROBOTS}}
   {{LCP_PRELOAD}}
 
-  <!-- ═══ SEO — Open Graph (social sharing) ══════════════════ -->
+  <!-- ═══ SEO - Open Graph (social sharing) ══════════════════ -->
   <meta property="og:type"        content="website" />
   <meta property="og:site_name"   content="[Site Name]" />
   <meta property="og:title"       content="{{OG_TITLE}}" />
@@ -219,7 +219,7 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card"       content="summary_large_image" />
 
-  <!-- ═══ SEO — Structured Data (JSON-LD) ════════════════════ -->
+  <!-- ═══ SEO - Structured Data (JSON-LD) ════════════════════ -->
   <!-- Update name, url, logo, and sameAs before going live.   -->
   <!-- Run /b2:seo schema to fill these from your brand docs.  -->
   <script type="application/ld+json">
@@ -249,7 +249,7 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=[Fonts]&display=swap" rel="stylesheet" />
-  <!-- Example CDN libraries — include whichever the mockup uses, plus any icon library: -->
+  <!-- Example CDN libraries - include whichever the mockup uses, plus any icon library: -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script> -->
   <!-- <script src="https://unpkg.com/lucide@latest"></script> -->
   <!-- Self-hosted libraries: vendor into the theme folder and load them here, e.g.
@@ -258,23 +258,23 @@ So the assembled `dist/*.html` files are only valid HTML if `header.html` opens 
 </head>
 <body>
 <header class="site-header">
-  <!-- nav here — see URL rules below -->
+  <!-- nav here - see URL rules below -->
 </header>
-<main><!-- closed in footer.html — required semantic landmark for SEO and accessibility -->
+<main><!-- closed in footer.html - required semantic landmark for SEO and accessibility -->
 ```
 
 **SEO notes for header.html:**
-- Bracketed `[values]` (site name, schema logo/sameAs) must be replaced with real content — never leave placeholder text in production. `{{DOUBLE_BRACE}}` tokens are different — leave those exactly as shown; they're filled per page at build time, not by you.
-- `og:image` must resolve to a real file before design is marked complete — generate one now with `/b2:illustrate` or `/b2:image` (1200×630px). Do not leave a placeholder path; a broken og:image is worse than a generic one.
-- Page-level `noindex`: if a page should be excluded from search results (an internal demo, a mockup gallery, a duplicate), set `noindex: true` in that page's `src/*.md` frontmatter — the assembler adds the `<meta name="robots">` tag automatically.
-- `{{ASSET_VERSION}}` (a short content hash of `styles.css`/`scripts.js`, injected by the assembler): pairs `/styles.css`/`/scripts.js` with a query param so they're safe to cache long-term (see `website/src/.htaccess`, generated by `/b2:setup`) while still busting stale copies the moment either file's content changes. Never hardcode a value here — leave the token as-is, same as `{{TITLE}}`.
+- Bracketed `[values]` (site name, schema logo/sameAs) must be replaced with real content - never leave placeholder text in production. `{{DOUBLE_BRACE}}` tokens are different - leave those exactly as shown; they're filled per page at build time, not by you.
+- `og:image` must resolve to a real file before design is marked complete - generate one now with `/b2:illustrate` or `/b2:image` (1200×630px). Do not leave a placeholder path; a broken og:image is worse than a generic one.
+- Page-level `noindex`: if a page should be excluded from search results (an internal demo, a mockup gallery, a duplicate), set `noindex: true` in that page's `src/*.md` frontmatter - the assembler adds the `<meta name="robots">` tag automatically.
+- `{{ASSET_VERSION}}` (a short content hash of `styles.css`/`scripts.js`, injected by the assembler): pairs `/styles.css`/`/scripts.js` with a query param so they're safe to cache long-term (see `website/src/.htaccess`, generated by `/b2:setup`) while still busting stale copies the moment either file's content changes. Never hardcode a value here - leave the token as-is, same as `{{TITLE}}`.
 - After going live, run `/b2:seo` to update schema values (name, logo, social links) from your brand docs and audit the full site.
 
 **URL rules for nav links:**
 
 The b2 build produces **flat `.html` files** at `dist/`. Apache httpd (the Docker server) does not auto-append `.html` to extensionless URLs. Nav links must therefore include the `.html` extension for all pages except:
-- `/` — maps to `dist/index.html` by default (Apache DirectoryIndex)
-- Anchor links (`#section`) — unchanged
+- `/` - maps to `dist/index.html` by default (Apache DirectoryIndex)
+- Anchor links (`#section`) - unchanged
 
 | Page | Correct link | Wrong |
 |------|-------------|-------|
@@ -286,7 +286,7 @@ The b2 build produces **flat `.html` files** at `dist/`. Apache httpd (the Docke
 
 Read `website/docs/content-types.md` to determine the actual page list and derive correct hrefs. Each `src/*.md` file maps to `dist/*.html` and needs a `.html` href in the nav.
 
-**Do not hardcode an active-state class on any nav link here** — `header.html` is one static file reused verbatim on every page, so a hardcoded `--active` (or equivalent) class would be wrong on every page except one. Active state is set at runtime by `scripts.js` (see the "Active nav state" base helper below) — the markup here should list every link with only its base class.
+**Do not hardcode an active-state class on any nav link here** - `header.html` is one static file reused verbatim on every page, so a hardcoded `--active` (or equivalent) class would be wrong on every page except one. Active state is set at runtime by `scripts.js` (see the "Active nav state" base helper below) - the markup here should list every link with only its base class.
 
 **Menu toggle visibility:**
 
@@ -308,25 +308,25 @@ Without the desktop `display: none`, the toggle renders on all screen sizes.
 
 ## Favicon
 
-Generate a favicon once the nav's brand mark is finalized in header.html — it must match that mark exactly (same color, text, font, shape), not be a separately-invented icon. A missing favicon is a small but universally-noticed polish gap; there's no reason to leave it for later.
+Generate a favicon once the nav's brand mark is finalized in header.html - it must match that mark exactly (same color, text, font, shape), not be a separately-invented icon. A missing favicon is a small but universally-noticed polish gap; there's no reason to leave it for later.
 
 Determine which case applies:
 
-**The mark is a CSS text badge** (a color chip with bold text — the common b2 pattern, e.g. a `.brandmark` class: background color + text + font-family/weight + border-radius, all already in header.html/styles.css from the work just done):
+**The mark is a CSS text badge** (a color chip with bold text - the common b2 pattern, e.g. a `.brandmark` class: background color + text + font-family/weight + border-radius, all already in header.html/styles.css from the work just done):
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/design-expert/scripts/generate-favicon.py" \
   --text "B2" --bg "#E8531D" --fg "#FFFFFF" \
   --font website/dist/fonts/{the-self-hosted-heading-font}.ttf \
   --radius 28
 ```
-Use the exact hex colors, text, and radius-as-percent-of-size from the mark's actual CSS rule — don't approximate. If the heading font isn't self-hosted yet (font self-hosting is an SEO-phase step, may not have run), omit `--font` — the script falls back to a system bold sans-serif, which is a fine tradeoff at favicon size rather than blocking on font setup.
+Use the exact hex colors, text, and radius-as-percent-of-size from the mark's actual CSS rule - don't approximate. If the heading font isn't self-hosted yet (font self-hosting is an SEO-phase step, may not have run), omit `--font` - the script falls back to a system bold sans-serif, which is a fine tradeoff at favicon size rather than blocking on font setup.
 
 **The mark is an existing logo image** (in `theme/{THEME}/assets/`):
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/design-expert/scripts/generate-favicon.py" --image website/theme/{THEME}/assets/logo.png
 ```
 
-Either way, this writes `website/src/favicon.ico` and `website/src/assets/{favicon-16,favicon-32,favicon-192}.png` + `apple-touch-icon.png` — add to `header.html`'s `<head>` (alongside the other required structure, near the top):
+Either way, this writes `website/src/favicon.ico` and `website/src/assets/{favicon-16,favicon-32,favicon-192}.png` + `apple-touch-icon.png` - add to `header.html`'s `<head>` (alongside the other required structure, near the top):
 ```html
 <link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" href="/assets/favicon-16.png" type="image/png" sizes="16x16" />
@@ -342,7 +342,7 @@ Either way, this writes `website/src/favicon.ico` and `website/src/assets/{favic
 `footer.html` closes the HTML document. It must end with `</body></html>` and load `scripts.js` before closing:
 
 ```html
-</main><!-- closes <main> opened in header.html — required for SEO and accessibility -->
+</main><!-- closes <main> opened in header.html - required for SEO and accessibility -->
 <footer class="site-footer">
   <div class="container">
     <p class="site-footer__copy">&copy; <span id="footer-year"></span> [Site Name]. All rights reserved.</p>
@@ -354,20 +354,20 @@ Either way, this writes `website/src/favicon.ico` and `website/src/assets/{favic
 </html>
 ```
 
-`defer` is required even though the tag is already at the end of `<body>` — being last in the document is not equivalent to `defer`. A synchronous script there still blocks parsing/paint while it downloads and executes; `defer` lets the browser paint without waiting on it.
+`defer` is required even though the tag is already at the end of `<body>` - being last in the document is not equivalent to `defer`. A synchronous script there still blocks parsing/paint while it downloads and executes; `defer` lets the browser paint without waiting on it.
 
-**`<main>` landmark:** `footer.html` must close a `<main>` element that was opened in `header.html` — after the `<header>`. This is required for SEO (Google uses `<main>` to identify primary page content) and for accessibility. Add `<main>` to `header.html` immediately after the closing `</header>` tag.
+**`<main>` landmark:** `footer.html` must close a `<main>` element that was opened in `header.html` - after the `<header>`. This is required for SEO (Google uses `<main>` to identify primary page content) and for accessibility. Add `<main>` to `header.html` immediately after the closing `</header>` tag.
 
-Keep footer content minimal. Adapt based on brand — e.g., add social links, nav columns, or tagline if that aligns with the brand voice. The `scripts.js` path must be absolute (`/scripts.js`), not relative. Style `.site-footer__credit` as muted text (smaller size, reduced opacity or muted colour from the theme's Text Muted token).
+Keep footer content minimal. Adapt based on brand - e.g., add social links, nav columns, or tagline if that aligns with the brand voice. The `scripts.js` path must be absolute (`/scripts.js`), not relative. Style `.site-footer__credit` as muted text (smaller size, reduced opacity or muted colour from the theme's Text Muted token).
 
-Leave the `?v={{ASSET_VERSION}}` query param on the `scripts.js` tag exactly as shown — same rule as `header.html`'s stylesheet link.
+Leave the `?v={{ASSET_VERSION}}` query param on the `scripts.js` tag exactly as shown - same rule as `header.html`'s stylesheet link.
 
 ---
 
 ## scripts.js
 
-Carry the **chosen mockup's full JavaScript** — every bespoke animation, interaction, scroll effect, and
-3D/canvas init — and add the three base helpers below. Do **not** reduce the theme to boilerplate: the
+Carry the **chosen mockup's full JavaScript** - every bespoke animation, interaction, scroll effect, and
+3D/canvas init - and add the three base helpers below. Do **not** reduce the theme to boilerplate: the
 craft in the mockup's JS is part of the design and must survive into the live site.
 
 - Keep external libraries (GSAP, Three.js, Motion, …) as `<script src="…">` in `header.html`/`footer.html`;
@@ -376,7 +376,7 @@ craft in the mockup's JS is part of the design and must survive into the live si
   and load it from `header.html`/`footer.html` before `scripts.js`.
 - Gate motion behind `prefers-reduced-motion`; lazy-init heavy 3D.
 
-**Speed and visual richness are not a tradeoff — sequence, don't cut.** A slow paint is a scheduling problem, not a "too much animation" problem. Never simplify away an effect to make a page feel fast; reorder it instead. Anything not needed for first paint — ambient canvas/particle backgrounds, parallax fields, decorative mascots, glow/glitch effects, anything below the fold — must initialize *after* first paint, not during it:
+**Speed and visual richness are not a tradeoff - sequence, don't cut.** A slow paint is a scheduling problem, not a "too much animation" problem. Never simplify away an effect to make a page feel fast; reorder it instead. Anything not needed for first paint - ambient canvas/particle backgrounds, parallax fields, decorative mascots, glow/glitch effects, anything below the fold - must initialize *after* first paint, not during it:
 
 ```js
 function lazyInit(){ initHeavyBackgroundEffect(); /* ...other non-critical inits */ }
@@ -384,7 +384,7 @@ if ('requestIdleCallback' in window){ requestIdleCallback(lazyInit, { timeout: 1
 else { setTimeout(lazyInit, 200); }
 ```
 
-Only code needed to render above-the-fold content correctly (mobile menu, active nav state, footer year) runs eagerly. Everything else — however central to the site's personality — waits. This is not a compromise on craft; it's how the craft ships fast.
+Only code needed to render above-the-fold content correctly (mobile menu, active nav state, footer year) runs eagerly. Everything else - however central to the site's personality - waits. This is not a compromise on craft; it's how the craft ships fast.
 
 Always include these base helpers (in addition to the mockup's JS):
 1. Mobile menu toggle
@@ -418,7 +418,7 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
 const yearEl = document.getElementById('footer-year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// Active nav state — header.html/footer.html are static files concatenated onto
+// Active nav state - header.html/footer.html are static files concatenated onto
 // every page (no per-page templating), so the active link must be set at runtime.
 // Adapt the selectors/class name to whatever this theme's nav-link component is.
 function markActiveNav() {
@@ -438,21 +438,21 @@ markActiveNav();
 
 ## design.md
 
-A human-readable design guide for experienced web designers building new pages within this theme. This file captures the *why and how* behind design decisions — not just palette and fonts, but the rules a designer needs to make autonomous decisions without breaking the visual system.
+A human-readable design guide for experienced web designers building new pages within this theme. This file captures the *why and how* behind design decisions - not just palette and fonts, but the rules a designer needs to make autonomous decisions without breaking the visual system.
 
 Generate as `website/theme/{THEME}/design.md`:
 
 ```markdown
-# [Theme Name] — Design Guide
+# [Theme Name] - Design Guide
 
 ## Visual Identity
 [One sentence that captures the essence of this theme's visual personality.]
 
 ## Design Principles
 
-1. **[Principle]** — [2–3 sentences on what this means in practice and how it should drive decisions.]
-2. **[Principle]** — [...]
-3. **[Principle]** — [...]
+1. **[Principle]** - [2–3 sentences on what this means in practice and how it should drive decisions.]
+2. **[Principle]** - [...]
+3. **[Principle]** - [...]
 
 ## Colour System
 
@@ -467,9 +467,9 @@ Generate as `website/theme/{THEME}/design.md`:
 | Text Muted | `#hex` | ... | Captions, metadata, secondary copy |
 
 **Colour rules:**
-- [e.g., "Accent is used at most once per section — it loses meaning when overused"]
+- [e.g., "Accent is used at most once per section - it loses meaning when overused"]
 - [e.g., "Never place primary text on a primary background"]
-- [e.g., "Surface sections alternate with Background sections — never two consecutive surfaces"]
+- [e.g., "Surface sections alternate with Background sections - never two consecutive surfaces"]
 
 ## Typography System
 
@@ -483,9 +483,9 @@ Generate as `website/theme/{THEME}/design.md`:
 | Button / Label | ... | ... | ... | ... | ... |
 
 **Typography rules:**
-- [e.g., "H1 appears only once per page — above the fold"]
+- [e.g., "H1 appears only once per page - above the fold"]
 - [e.g., "Body text max-width is 72ch to preserve readability"]
-- [e.g., "Never use H1 weight for decorative text — it signals importance"]
+- [e.g., "Never use H1 weight for decorative text - it signals importance"]
 
 ## Spacing & Rhythm
 
@@ -501,8 +501,8 @@ Base unit: [e.g., 8px]
 | 2xl | ... | Hero vertical padding, major breaks |
 
 **Spacing rules:**
-- [e.g., "Section top and bottom padding is always xl — never lg"]
-- [e.g., "Do not use margin between adjacent sections — use padding inside each section"]
+- [e.g., "Section top and bottom padding is always xl - never lg"]
+- [e.g., "Do not use margin between adjacent sections - use padding inside each section"]
 
 ## Layout & Grid
 
@@ -518,7 +518,7 @@ Base unit: [e.g., 8px]
 Rules for constructing new components that feel native to this theme.
 
 ### New section
-[Anatomy — e.g., ".section wrapper with xl vertical padding. Optional .section__header (label + title). .section__body for content grid."]
+[Anatomy - e.g., ".section wrapper with xl vertical padding. Optional .section__header (label + title). .section__body for content grid."]
 
 ### New card type
 [e.g., "Cards use .card base with Surface background, md padding, and a subtle border. Hover state: border-color shifts to Primary. No drop shadows."]
@@ -528,14 +528,14 @@ Rules for constructing new components that feel native to this theme.
 
 ## Image & Media Treatment
 
-Describe the visual treatment of images. Then add the **Image Size Specifications** table — this is required, not optional. It is read by `/b2:website-review` and `/b2:seo` to resize images to exactly what the design needs.
+Describe the visual treatment of images. Then add the **Image Size Specifications** table - this is required, not optional. It is read by `/b2:website-review` and `/b2:seo` to resize images to exactly what the design needs.
 
-Derive the `max-width` values from the actual mockup CSS and grid layout — not from generic defaults. A content column that maxes out at 760px needs `max-width: 800` (with 2× headroom for retina), not 1920.
+Derive the `max-width` values from the actual mockup CSS and grid layout - not from generic defaults. A content column that maxes out at 760px needs `max-width: 800` (with 2× headroom for retina), not 1920.
 
 ```markdown
 ## Image & Media Treatment
 
-[Visual treatment description — overlay, aspect ratio, object-fit, placeholder treatment]
+[Visual treatment description - overlay, aspect ratio, object-fit, placeholder treatment]
 
 ### Image Size Specifications
 
@@ -549,8 +549,8 @@ Used by /b2:seo and /b2:website-review to resize source images correctly.
 | content | `.content-block__image` | 760px | 800 | 4:3 | 800 = 760px + retina headroom |
 | card | `.post-list-item__thumb` | 400px | 800 | 3:2 | 800 = 400px × 2 for retina |
 | avatar | `.author-avatar` | 80px | 160 | 1:1 | 160 = 80px × 2 for retina |
-| logo | `.site-header__logo` | 160px | 320 | — | SVG preferred; PNG fallback |
-| og-image | — | — | 1200×630 | 1.91:1 | Social sharing — not in layout |
+| logo | `.site-header__logo` | 160px | 320 | - | SVG preferred; PNG fallback |
+| og-image | - | - | 1200×630 | 1.91:1 | Social sharing - not in layout |
 ```
 
 Fill in actual values from this design's mockup and CSS. Remove rows for image roles that don't exist in this design. Add rows for any image roles not listed above.
@@ -560,41 +560,41 @@ Fill in actual values from this design's mockup and CSS. Remove rows for image r
 - Content images: use the rendered column width + small retina headroom (typically ×1.05)
 - Small repeated images (cards, avatars, icons): use rendered size × 2 for retina screens
 
-**SEO and performance requirements — apply to every `<img>` in partials:**
-- `alt="[descriptive text]"` — required on every image.
-- `width` and `height` — required. Use actual pixel dimensions of the source file (post-resize).
-- `loading="lazy"` — on all below-the-fold images.
-- `loading="eager" fetchpriority="high"` — on the first/hero image only.
+**SEO and performance requirements - apply to every `<img>` in partials:**
+- `alt="[descriptive text]"` - required on every image.
+- `width` and `height` - required. Use actual pixel dimensions of the source file (post-resize).
+- `loading="lazy"` - on all below-the-fold images.
+- `loading="eager" fetchpriority="high"` - on the first/hero image only.
 - Use `<picture>` with `<source type="image/webp">` when a `.webp` sibling exists.
 - Run `/b2:seo images` to resize, compress, and convert all images using these specs.
 
 ## Interactive States
 
 - **Links:** [default / hover / active / focus colors and underline treatment]
-- **Buttons:** [hover — e.g., darken 10%; active — e.g., darken 20%; disabled — e.g., 40% opacity, no pointer]
-- **Cards:** [hover treatment — e.g., border shifts to Primary, no movement/lift]
-- **Nav items:** [active state — e.g., Primary underline 2px, font-weight 600]
+- **Buttons:** [hover - e.g., darken 10%; active - e.g., darken 20%; disabled - e.g., 40% opacity, no pointer]
+- **Cards:** [hover treatment - e.g., border shifts to Primary, no movement/lift]
+- **Nav items:** [active state - e.g., Primary underline 2px, font-weight 600]
 
 ## Decorative Elements
 
 Rules for non-structural visual elements specific to this theme:
-- [e.g., "Dividers between sections use whitespace alone — never a horizontal rule"]
+- [e.g., "Dividers between sections use whitespace alone - never a horizontal rule"]
 - [e.g., "Badge/tag elements use accent background at 15% opacity with accent text"]
 - [e.g., "Pull quotes use a 4px left border in Primary, italic body font, 1.2× larger"]
 
 ## Anti-Patterns
 
-What NOT to do — common choices that break this theme's visual consistency:
-- [e.g., "Do not use drop shadows — elevation is expressed through border and colour, not shadow"]
+What NOT to do - common choices that break this theme's visual consistency:
+- [e.g., "Do not use drop shadows - elevation is expressed through border and colour, not shadow"]
 - [e.g., "Do not place more than one accent-coloured element above the fold"]
 - [e.g., "Do not mix the display and body typefaces at the same heading level"]
-- [e.g., "Do not centre-align body copy — only headings and CTAs are centred"]
+- [e.g., "Do not centre-align body copy - only headings and CTAs are centred"]
 
 ## Page Composition
 
 How new pages should be structured:
 - **Entry point pages** (homepage, how-it-works): Full `.hero` with mascot panel above the fold. Dense visual. Then content sections. One primary CTA.
-- **Destination pages** (docs, about, contact): `.page-hero` at top (compact dark header — eyebrow + h1 + subtitle, no mascot). Then `.content-block` / `.content-block--alt` alternating. Optional `.btn--primary` CTA at end.
+- **Destination pages** (docs, about, contact): `.page-hero` at top (compact dark header - eyebrow + h1 + subtitle, no mascot). Then `.content-block` / `.content-block--alt` alternating. Optional `.btn--primary` CTA at end.
 - **Above the fold for entry points:** Site header + hero with H1 and primary CTA.
 - **Above the fold for destination pages:** Site header + page-hero with page name + punchy h1.
 - **CTA frequency:** One primary CTA per page. Secondary CTAs in body sections.
@@ -603,7 +603,7 @@ How new pages should be structured:
 
 ---
 
-## website/docs/decisions.md — Design Language Section
+## website/docs/decisions.md - Design Language Section
 
 Append this section to the existing `website/docs/decisions.md` file (do not overwrite the Brand Voice section):
 
@@ -613,15 +613,15 @@ Append this section to the existing `website/docs/decisions.md` file (do not ove
 **Style:** [1-2 sentence summary of the visual direction]
 
 **Colour palette:**
-- Primary: `#hex` — [role, e.g., "CTAs and links"]
-- Secondary: `#hex` — [role]
-- Accent: `#hex` — [role]
-- Background: `#hex` — [role]
-- Text: `#hex` — [role]
+- Primary: `#hex` - [role, e.g., "CTAs and links"]
+- Secondary: `#hex` - [role]
+- Accent: `#hex` - [role]
+- Background: `#hex` - [role]
+- Text: `#hex` - [role]
 
 **Typography:**
-- Headlines: [font name, weight] — [where used]
-- Body: [font name, weight] — [where used]
+- Headlines: [font name, weight] - [where used]
+- Body: [font name, weight] - [where used]
 
 **Layout:** [1 sentence: e.g., "Generous whitespace, single-column reading, wide hero sections"]
 

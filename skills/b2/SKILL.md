@@ -5,11 +5,11 @@ description: This skill should be used when the user runs "/b2", asks "what shou
 
 # b2
 
-**Guide mode:** If the user asks "what is b2", "how does b2 work", or a similar explanatory question — read `${CLAUDE_PLUGIN_ROOT}/skills/b2/resources/knowledge.md` using the Read tool and answer from that document.
+**Guide mode:** If the user asks "what is b2", "how does b2 work", or a similar explanatory question - read `${CLAUDE_PLUGIN_ROOT}/skills/b2/resources/knowledge.md` using the Read tool and answer from that document.
 
-**Status mode (default):** Detect the current b2 project state from file existence and output a compact status table. Then show what's available now with a one-liner each, marking one as recommended (→). Add `/b2:talk` as an anytime option in all setup states. Still opinionated — not a neutral menu.
+**Status mode (default):** Detect the current b2 project state from file existence and output a compact status table. Then show what's available now with a one-liner each, marking one as recommended (→). Add `/b2:talk` as an anytime option in all setup states. Still opinionated - not a neutral menu.
 
-**Dispatch mode (maintenance only):** If the user says "run build", "start the server", "build the site", etc. — invoke the corresponding skill directly using the Skill tool rather than asking them to run a command themselves.
+**Dispatch mode (maintenance only):** If the user says "run build", "start the server", "build the site", etc. - invoke the corresponding skill directly using the Skill tool rather than asking them to run a command themselves.
 
 ---
 
@@ -21,7 +21,7 @@ Run this once via Bash, from the project root:
 sh "${CLAUDE_PLUGIN_ROOT}/skills/b2/scripts/status.sh"
 ```
 
-It prints `KEY=value` lines covering every check below in one pass — do not use Read for these files individually, the script replaces all of it:
+It prints `KEY=value` lines covering every check below in one pass - do not use Read for these files individually, the script replaces all of it:
 
 | Key | Phase | Meaning |
 |-----|-------|---------|
@@ -32,8 +32,8 @@ It prints `KEY=value` lines covering every check below in one pass — do not us
 | `DESIGN` | Design | `website/theme/{THEME}/components.md` exists |
 | `SYNC` | Sync | `website/docs/status.md` contains `- [x] Sync` |
 | `SETUP` | Setup | `website/b2.cfg` contains `BUILD_TOOL=` |
-| `THEME` | — | value of `THEME=` from `website/b2.cfg`, default `b2` |
-| `IN_PROGRESS` | — | first line containing `IN PROGRESS` in `website/docs/status.md`, or `none` |
+| `THEME` | - | value of `THEME=` from `website/b2.cfg`, default `b2` |
+| `IN_PROGRESS` | - | first line containing `IN PROGRESS` in `website/docs/status.md`, or `none` |
 
 ---
 
@@ -57,18 +57,18 @@ Output exactly two sections:
 | Setup     | ✗ pending  |
 ```
 
-**2. What's available now** — the recommended action marked with →, plus `/b2:talk` as an always-present anytime option. Other alternatives shown only when there's a genuine reason to skip ahead.
+**2. What's available now** - the recommended action marked with →, plus `/b2:talk` as an always-present anytime option. Other alternatives shown only when there's a genuine reason to skip ahead.
 
 ---
 
 ## Routing Logic
 
-Apply in order — use the first rule that matches:
+Apply in order - use the first rule that matches:
 
 1. **In-progress detected** (`website/docs/status.md` has an `IN PROGRESS` entry AND the phase's output file does not yet exist):
    For example: design `IN PROGRESS` but `website/theme/{THEME}/components.md` does not exist → resume.
-   If the output file already exists, the IN PROGRESS entry is stale — ignore it and apply subsequent rules.
-   Output: `[Phase] is in progress — resume with /b2:[phase]`
+   If the output file already exists, the IN PROGRESS entry is stale - ignore it and apply subsequent rules.
+   Output: `[Phase] is in progress - resume with /b2:[phase]`
 
 2. **Nothing set up** (no vision.md):
 
@@ -76,7 +76,7 @@ Apply in order — use the first rule that matches:
    ## Where to start
 
    → /b2:vision ← structured interview, ~10 minutes, creates your vision document
-      /b2:talk — explore ideas more broadly first, no structure required
+      /b2:talk - explore ideas more broadly first, no structure required
    ```
 
 3. **Vision only** (vision.md exists, no website-design-brief.md and no design-brief.md):
@@ -84,8 +84,8 @@ Apply in order — use the first rule that matches:
    ```
    ## What you can do now
 
-   → /b2:brand ← recommended next — turn your vision into positioning and voice
-      /b2:talk — explore ideas, refine messaging, or capture notes (anytime)
+   → /b2:brand ← recommended next - turn your vision into positioning and voice
+      /b2:talk - explore ideas, refine messaging, or capture notes (anytime)
    ```
 
 4. **Brand done, no structure** (website-design-brief.md or design-brief.md exists, no content-types.md):
@@ -93,8 +93,8 @@ Apply in order — use the first rule that matches:
    ```
    ## What you can do now
 
-   → /b2:structure ← recommended next — map out your site pages and content types
-      /b2:talk — explore ideas, refine messaging, or capture notes (anytime)
+   → /b2:structure ← recommended next - map out your site pages and content types
+      /b2:talk - explore ideas, refine messaging, or capture notes (anytime)
    ```
 
 5. **Structure done, write not started** (content-types.md exists, no `[x] Write` in website/docs/status.md):
@@ -102,9 +102,9 @@ Apply in order — use the first rule that matches:
    ```
    ## What you can do now
 
-   → /b2:write ← recommended next — real content makes your design mockups significantly better
-      /b2:talk — explore ideas, refine messaging, or capture notes (anytime)
-      /b2:design — skip ahead to design (mockups will use stub content)
+   → /b2:write ← recommended next - real content makes your design mockups significantly better
+      /b2:talk - explore ideas, refine messaging, or capture notes (anytime)
+      /b2:design - skip ahead to design (mockups will use stub content)
    ```
 
 6. **Write done, no design** (`[x] Write` in website/docs/status.md, no components.md):
@@ -112,9 +112,9 @@ Apply in order — use the first rule that matches:
    ```
    ## What you can do now
 
-   → /b2:design ← recommended next — mockups, theme selection, and CSS generation
-      /b2:talk — explore ideas, refine messaging, or capture notes (anytime)
-      /b2:write — write more content pages first
+   → /b2:design ← recommended next - mockups, theme selection, and CSS generation
+      /b2:talk - explore ideas, refine messaging, or capture notes (anytime)
+      /b2:write - write more content pages first
    ```
 
 7. **Design done, sync not done** (components.md exists, no `[x] Sync` in website/docs/status.md):
@@ -122,8 +122,8 @@ Apply in order — use the first rule that matches:
    ```
    ## What you can do now
 
-   → /b2:sync ← recommended next — convert your .md files to HTML before building
-      /b2:talk — explore ideas, refine messaging, or capture notes (anytime)
+   → /b2:sync ← recommended next - convert your .md files to HTML before building
+      /b2:talk - explore ideas, refine messaging, or capture notes (anytime)
    ```
 
 8. **Sync done, no setup** (`[x] Sync` in website/docs/status.md, `b2.cfg` missing or has no `BUILD_TOOL=` line):
@@ -131,12 +131,12 @@ Apply in order — use the first rule that matches:
    ```
    ## What you can do now
 
-   → /b2:setup ← recommended next — configure build environment and run first build
-      /b2:talk — explore ideas, refine messaging, or capture notes (anytime)
+   → /b2:setup ← recommended next - configure build environment and run first build
+      /b2:talk - explore ideas, refine messaging, or capture notes (anytime)
    ```
 
 9. **All setup complete** (`b2.cfg` contains `BUILD_TOOL=`):
-   Show maintenance options — see Maintenance Mode below.
+   Show maintenance options - see Maintenance Mode below.
 
 ---
 
@@ -159,18 +159,18 @@ When all phases are complete, show:
 
 ## Your site is ready. What do you want to do?
 
-- `/b2:write` — write or update a content page
-- `/b2:build` — detect stale files, sync, assemble, and verify
-- `/b2:sync` — convert changed .md files to HTML (explicit)
-- `/b2:serve` — start local server on dist/
-- `/b2:website-review` — screenshot and evaluate a page visually
-- `/b2:talk` — explore ideas, refine messaging, or capture notes (anytime)
-- `make publish` — publish to your host (requires websync or rsync configured in Makefile)
+- `/b2:write` - write or update a content page
+- `/b2:build` - detect stale files, sync, assemble, and verify
+- `/b2:sync` - convert changed .md files to HTML (explicit)
+- `/b2:serve` - start local server on dist/
+- `/b2:website-review` - screenshot and evaluate a page visually
+- `/b2:talk` - explore ideas, refine messaging, or capture notes (anytime)
+- `make publish` - publish to your host (requires websync or rsync configured in Makefile)
 
-In dispatch mode, the user can say "run build", "start the server", etc. — invoke the corresponding skill directly.
+In dispatch mode, the user can say "run build", "start the server", etc. - invoke the corresponding skill directly.
 ```
 
-In maintenance mode, offering multiple options is correct — the user is no longer in a linear setup flow.
+In maintenance mode, offering multiple options is correct - the user is no longer in a linear setup flow.
 
 ---
 

@@ -5,13 +5,13 @@ description: This skill should be used when the user runs "/b2:structure", asks 
 
 # b2 Structure Expert
 
-Adopt the persona of an information architect. The goal is a clear site map with defined content types — not an exhaustive content plan. Structure for clarity, not completeness. This output feeds directly into `/b2:design`, which reads `content-types.md` to build mockups with accurate navigation.
+Adopt the persona of an information architect. The goal is a clear site map with defined content types - not an exhaustive content plan. Structure for clarity, not completeness. This output feeds directly into `/b2:design`, which reads `content-types.md` to build mockups with accurate navigation.
 
 ---
 
 ## Before Starting
 
-Ensure required directories exist (Bash tool — run before any Write call):
+Ensure required directories exist (Bash tool - run before any Write call):
 
 ```bash
 mkdir -p website/docs website/src
@@ -23,7 +23,7 @@ mkdir -p website/docs website/src
 
 Read `docs/product/vision.md`. Read `docs/product/website-design-brief.md` if it exists; otherwise try `docs/product/design-brief.md`. If neither exists, stop:
 
-> "Run `/b2:brand` first — site structure should be grounded in brand positioning."
+> "Run `/b2:brand` first - site structure should be grounded in brand positioning."
 
 Use both documents throughout the interview to test alignment.
 
@@ -34,10 +34,10 @@ returning project or one already asked (by `talk-expert` or `write-expert`); it 
 question on a fresh project.
 
 Separately, and regardless of whether the trigger fired this session, check for
-`website/docs/site-import/pages.md` (Read tool; tolerate FileNotFoundError). If present — from any
-earlier Structure import, this session or a prior one — open the Interview Topics below by presenting
+`website/docs/site-import/pages.md` (Read tool; tolerate FileNotFoundError). If present - from any
+earlier Structure import, this session or a prior one - open the Interview Topics below by presenting
 its Navigation/Root pages/Recurring types content back to the user for confirmation ("Here's what I
-found on your existing site — does this match what you want here, or should we change it?") instead
+found on your existing site - does this match what you want here, or should we change it?") instead
 of asking topic 1 and 2 from a blank page. Still ask topics 3-5 normally; the import only seeds the
 page/type list, not navigation-order or user-journey questions.
 
@@ -58,7 +58,7 @@ If `docs/notes/` does not exist, skip silently.
 Guide toward a lean set. Most small sites need 4–6 root pages. More is not better.
 
 **2. Recurring content types**
-"Does this site have any content that repeats in the same format — like blog posts, case studies, products, services, team members, projects? What types recur?"
+"Does this site have any content that repeats in the same format - like blog posts, case studies, products, services, team members, projects? What types recur?"
 
 For each recurring type, ask: "What's the minimum information each one needs?" (frontmatter fields)
 
@@ -106,19 +106,19 @@ Always include a `page` type for root-level one-off pages. Add additional types 
 
 For each type with `Index: yes`, specify the index layout.
 
-For each root-level page, add a one-line **Job**: the one thing this page is for, and — when its subject matter could overlap another planned page's — what it must NOT repeat. This is what lets `/b2:write` and `/b2:website-review` catch two pages drifting into the same story later, instead of a human having to notice it after the fact:
+For each root-level page, add a one-line **Job**: the one thing this page is for, and - when its subject matter could overlap another planned page's - what it must NOT repeat. This is what lets `/b2:write` and `/b2:website-review` catch two pages drifting into the same story later, instead of a human having to notice it after the fact:
 
 ```markdown
 ## page
 ...
 Pages:
-- index.md — Job: state the core pitch and route deeper. Not: a step-by-step walkthrough (how-it-works.md owns that).
-- how-it-works.md — Job: the literal step-by-step process, in full detail. Not: the pitch (index.md owns that).
+- index.md - Job: state the core pitch and route deeper. Not: a step-by-step walkthrough (how-it-works.md owns that).
+- how-it-works.md - Job: the literal step-by-step process, in full detail. Not: the pitch (index.md owns that).
 ```
 
-Skip the Job line for pages with no realistic overlap risk (e.g. a standalone contact page) — this is only worth recording where two pages could plausibly converge on the same content.
+Skip the Job line for pages with no realistic overlap risk (e.g. a standalone contact page) - this is only worth recording where two pages could plausibly converge on the same content.
 
-The semantic class names in "Default layout" and "Index layout" are suggestions — use names that describe the content, not the style (`.post-header` not `.dark-header`).
+The semantic class names in "Default layout" and "Index layout" are suggestions - use names that describe the content, not the style (`.post-header` not `.dark-header`).
 
 ---
 
@@ -136,7 +136,7 @@ description: About [site name].
 *[About page content goes here. Run /b2:write to generate copy.]*
 ```
 
-**Typed content** — create `website/src/{type}/` subfolder and 1–2 example stubs:
+**Typed content** - create `website/src/{type}/` subfolder and 1–2 example stubs:
 ```markdown
 ---
 title: Example Post Title
@@ -154,7 +154,7 @@ Use the correct frontmatter fields from the content type's spec in content-types
 
 ## After Writing
 
-Update `website/docs/status.md` — mark Structure complete:
+Update `website/docs/status.md` - mark Structure complete:
 ```
 - [x] Structure → website/docs/content-types.md
 ```
@@ -162,4 +162,4 @@ Update `website/docs/status.md` — mark Structure complete:
 Tell the user:
 - File paths created
 - How many stub files created
-- "Run `/b2:write` next — write real content before design so mockups use your actual copy, not stubs."
+- "Run `/b2:write` next - write real content before design so mockups use your actual copy, not stubs."

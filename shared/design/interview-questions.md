@@ -6,16 +6,16 @@ whole bank as a script.
 
 ## Business & goals
 
-- What does this site/deck need to *do* — the one action that defines success?
+- What does this site/deck need to *do* - the one action that defines success?
 - What happens in the business if this works? If it fails?
 - How do you make money, and where does this fit the funnel?
 - What's the single most important metric?
 
 ## Audience
 
-- Who exactly is this for — describe one real person.
+- Who exactly is this for - describe one real person.
 - What do they believe/feel *before* arriving? What must they believe after?
-- What's their context — device, mood, time, sophistication?
+- What's their context - device, mood, time, sophistication?
 - What objection or friction stops them today?
 
 ## Brand & personality
@@ -27,13 +27,13 @@ whole bank as a script.
 
 ## Competitive context
 
-- Who else is in this space — who do you admire, who do you want to beat?
+- Who else is in this space - who do you admire, who do you want to beat?
 - What's the one thing only you can say?
-- Show me 3 sites you love and 3 you hate — and why (visceral, not rational).
+- Show me 3 sites you love and 3 you hate - and why (visceral, not rational).
 
 ## Content & conversion
 
-- What's the hierarchy — what must a 5-second visitor grasp?
+- What's the hierarchy - what must a 5-second visitor grasp?
 - What proof/evidence builds trust (social proof, data, names)?
 - What's the primary CTA vs secondary paths?
 - What content exists vs must be created? Who maintains it?

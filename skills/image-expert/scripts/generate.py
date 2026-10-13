@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-b2 image generation — Gemini API
+b2 image generation - Gemini API
 Usage: python3 generate.py <aspect_ratio> <output_path> [model]
 Prompt: read from stdin
 API key: .env file → GEMINI_API_KEY env var

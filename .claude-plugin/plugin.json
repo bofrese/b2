@@ -4,5 +4,8 @@
   "description": "AI-powered static website builder. From blank folder to published site.",
   "author": {
     "name": "Bo Frese"
-  }
+  },
+  "dependencies": [
+    "plain-writing"
+  ]
 }

@@ -7,7 +7,7 @@ Ask **one question at a time**. Wait for the answer. Never accept the first answ
 ## The 7 Questions (in order)
 
 **1. The ONE thing**
-> "When this ends and someone walks out — what is the single thought you want lodged in their head? Give me one sentence."
+> "When this ends and someone walks out - what is the single thought you want lodged in their head? Give me one sentence."
 
 Push back if:
 - It's a list → "Pick one."
@@ -17,7 +17,7 @@ Push back if:
 ---
 
 **2. The audience**
-> "Who specifically is in the room? Describe the single most important person you need to move — their role, what they currently believe about this topic, and what they're worried about."
+> "Who specifically is in the room? Describe the single most important person you need to move - their role, what they currently believe about this topic, and what they're worried about."
 
 Push back if:
 - It's a demographic ("business owners", "developers") → "Give me a specific person. What do they read? What do they argue about in meetings?"
@@ -26,7 +26,7 @@ Push back if:
 ---
 
 **3. The goal**
-> "What do you want them to DO differently after this? Not think, not appreciate — do. What's the specific Monday-morning action?"
+> "What do you want them to DO differently after this? Not think, not appreciate - do. What's the specific Monday-morning action?"
 
 Push back if:
 - It's "understand" or "be aware" → "What specifically do they do on Monday morning as a result?"
@@ -44,7 +44,7 @@ Push back if:
 ---
 
 **5. The proof**
-> "What is your single strongest piece of evidence — the stat, story, or demo that makes the skeptic in the room go quiet?"
+> "What is your single strongest piece of evidence - the stat, story, or demo that makes the skeptic in the room go quiet?"
 
 Push back if:
 - They give multiple things → "Which one would you keep if you could only use one?"
@@ -62,7 +62,7 @@ Push back if:
 ---
 
 **7. The three movements**
-> "If this presentation were a story in three acts — beginning, middle, end — what happens in each? Don't list points. Describe the journey: where does the audience start, what shifts, where do they end up?"
+> "If this presentation were a story in three acts - beginning, middle, end - what happens in each? Don't list points. Describe the journey: where does the audience start, what shifts, where do they end up?"
 
 Push back if:
 - They give bullet points → "That's a list. What's the emotional journey? What does the audience believe at the start vs. the end?"

@@ -26,20 +26,20 @@ If no HTML files found, stop:
 
 ## Check for an Already-Running Server
 
-A server may already be bound to port 8099 from a previous session — possibly serving the wrong directory (e.g. `website/` instead of `website/dist/`, left over from a manual start or an interrupted process). A 200 response alone does not confirm it's serving the right content.
+A server may already be bound to port 8099 from a previous session - possibly serving the wrong directory (e.g. `website/` instead of `website/dist/`, left over from a manual start or an interrupted process). A 200 response alone does not confirm it's serving the right content.
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8099/ 2>/dev/null || echo "unreachable"
 ```
 
-If it responds, verify it's actually serving `dist/` — pick one filename from `website/dist/*.html` other than `index.html` (if any exist) and request it:
+If it responds, verify it's actually serving `dist/` - pick one filename from `website/dist/*.html` other than `index.html` (if any exist) and request it:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}" "http://localhost:8099/{that-filename}"
 ```
 
-- **200:** the running server is correct — report the existing URL and stop, don't start a second one.
-- **404 (or the port is occupied by something that doesn't serve this site):** the server is stale or misconfigured. Do not kill it silently — report what's bound to the port if discoverable (`lsof -i :8099` on macOS/Linux, best-effort — skip quietly if unavailable, e.g. on Windows) and ask the user: kill and restart on 8099, or use a different port?
+- **200:** the running server is correct - report the existing URL and stop, don't start a second one.
+- **404 (or the port is occupied by something that doesn't serve this site):** the server is stale or misconfigured. Do not kill it silently - report what's bound to the port if discoverable (`lsof -i :8099` on macOS/Linux, best-effort - skip quietly if unavailable, e.g. on Windows) and ask the user: kill and restart on 8099, or use a different port?
 
 ---
 
@@ -48,17 +48,17 @@ curl -s -o /dev/null -w "%{http_code}" "http://localhost:8099/{that-filename}"
 Try servers in this priority order (Bash tool):
 
 
-1. **Python 3** — portable, usually available:
+1. **Python 3** - portable, usually available:
    ```bash
    python3 --version 2>/dev/null && echo "python3"
    ```
 
-2. **npx serve** — Node.js based:
+2. **npx serve** - Node.js based:
    ```bash
    npx --yes serve --version 2>/dev/null && echo "npx-serve"
    ```
 
-3. **Docker Compose** — if `website/docker-compose.yml` exists and `docker compose` is available:
+3. **Docker Compose** - if `website/docker-compose.yml` exists and `docker compose` is available:
    ```bash
    [ -f "$(pwd)/website/docker-compose.yml" ] && docker compose version 2>/dev/null && echo "docker"
    ```

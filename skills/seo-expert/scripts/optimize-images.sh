@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# optimize-images.sh — Audit and convert images for b2 SEO / performance
+# optimize-images.sh - Audit and convert images for b2 SEO / performance
 #
 # Usage:
-#   bash optimize-images.sh audit          — report only, no changes
-#   bash optimize-images.sh convert        — convert JPG/PNG → WebP (src/images only)
-#   bash optimize-images.sh convert --force — reconvert even if WebP already exists
+#   bash optimize-images.sh audit - report only, no changes
+#   bash optimize-images.sh convert - convert JPG/PNG → WebP (src/images only)
+#   bash optimize-images.sh convert --force - reconvert even if WebP already exists
 #
 # Reads:  website/src/images/  (source images to optimise)
 #         website/partials/     (check img tags for width/height/alt/lazy)
@@ -120,7 +120,7 @@ detect_tools
 if [ -d "$SRC_IMG" ]; then
   SRC_FILES=$(find "$SRC_IMG" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" \) 2>/dev/null | sort)
 else
-  echo "WARN:src:no_image_dir:website/src/images/ not found — no source images to audit"
+  echo "WARN:src:no_image_dir:website/src/images/ not found - no source images to audit"
   SRC_FILES=""
 fi
 
@@ -149,14 +149,14 @@ for IMG in $SRC_FILES; do
 
   # Warn on large dimensions
   if [ "$WIDTH" != "unknown" ] && [ "$WIDTH" -gt 2400 ] 2>/dev/null; then
-    echo "WARN:$REL:oversized:${DIMS}px — hero images rarely need more than 1920px wide"
+    echo "WARN:$REL:oversized:${DIMS}px - hero images rarely need more than 1920px wide"
   elif [ "$WIDTH" != "unknown" ] && [ "$WIDTH" -gt 1200 ] 2>/dev/null; then
-    echo "INFO:$REL:large_dims:${DIMS}px — consider 1200px max for content images"
+    echo "INFO:$REL:large_dims:${DIMS}px - consider 1200px max for content images"
   fi
 
   # Warn on file size
   if [ "$SIZE_KB" -gt 300 ]; then
-    echo "WARN:$REL:large_file:${SIZE_KB}KB — should be <150KB after WebP conversion"
+    echo "WARN:$REL:large_file:${SIZE_KB}KB - should be <150KB after WebP conversion"
   elif [ "$SIZE_KB" -gt 100 ]; then
     echo "INFO:$REL:file_size:${SIZE_KB}KB (acceptable, but WebP conversion will help)"
   fi
@@ -165,7 +165,7 @@ for IMG in $SRC_FILES; do
     WEBP_SIZE_KB=$(get_size_kb "$WEBP_PATH")
     echo "OK:$REL:webp_exists:${EXT_LOWER} ${SIZE_KB}KB → webp ${WEBP_SIZE_KB}KB already converted"
   else
-    echo "ISSUE:$REL:not_webp:${EXT_LOWER} ${SIZE_KB}KB ${DIMS} — WebP version missing"
+    echo "ISSUE:$REL:not_webp:${EXT_LOWER} ${SIZE_KB}KB ${DIMS} - WebP version missing"
   fi
 
   # ── Convert mode ─────────────────────────────────────────
@@ -176,7 +176,7 @@ for IMG in $SRC_FILES; do
     fi
 
     if ! $TOOL_AVAIL; then
-      echo "ERROR:$REL:no_tool:No conversion tool available — see TOOL_AVAIL line above"
+      echo "ERROR:$REL:no_tool:No conversion tool available - see TOOL_AVAIL line above"
       continue
     fi
 
@@ -199,7 +199,7 @@ if [ -d "$PARTIALS_DIR" ]; then
     REL="${PARTIAL#$ROOT/}"
     CONTENT=$(cat "$PARTIAL")
 
-    # Images without width/height — use arithmetic: total minus those with attr
+    # Images without width/height - use arithmetic: total minus those with attr
     IMG_TOTAL=$(echo "$CONTENT" | grep -c '<img ' || true)
     IMG_WITH_WIDTH=$(echo "$CONTENT" | grep -cE '<img [^>]*width=' || true)
     IMG_WITH_HEIGHT=$(echo "$CONTENT" | grep -cE '<img [^>]*height=' || true)
@@ -207,14 +207,14 @@ if [ -d "$PARTIALS_DIR" ]; then
     IMG_NO_HEIGHT=$(( IMG_TOTAL - IMG_WITH_HEIGHT ))
     IMG_NO_DIMS=$(( IMG_NO_WIDTH > IMG_NO_HEIGHT ? IMG_NO_WIDTH : IMG_NO_HEIGHT ))
     if [ "$IMG_NO_DIMS" -gt 0 ]; then
-      echo "WARN:$REL:img_no_dimensions:${IMG_NO_DIMS} <img> tag(s) missing width/height — causes CLS"
+      echo "WARN:$REL:img_no_dimensions:${IMG_NO_DIMS} <img> tag(s) missing width/height - causes CLS"
     fi
 
     # Images without loading attribute
     IMG_WITH_LOADING=$(echo "$CONTENT" | grep -cE '<img [^>]*loading=' || true)
     IMG_NO_LAZY=$(( IMG_TOTAL - IMG_WITH_LOADING ))
     if [ "$IMG_NO_LAZY" -gt 0 ]; then
-      echo "INFO:$REL:img_no_lazy:${IMG_NO_LAZY} <img> tag(s) without loading attribute — add loading=\"lazy\" for below-fold images"
+      echo "INFO:$REL:img_no_lazy:${IMG_NO_LAZY} <img> tag(s) without loading attribute - add loading=\"lazy\" for below-fold images"
     fi
 
     # Non-WebP src references
@@ -236,7 +236,7 @@ if [ -f "$STYLES" ]; then
   # font-display: swap
   if grep -q '@font-face' "$STYLES" 2>/dev/null; then
     if ! grep -q 'font-display' "$STYLES" 2>/dev/null; then
-      echo "WARN:styles.css:font_display_missing:@font-face found but no font-display: swap — fonts block rendering"
+      echo "WARN:styles.css:font_display_missing:@font-face found but no font-display: swap - fonts block rendering"
     else
       echo "OK:styles.css:font_display:font-display property found"
     fi
@@ -253,19 +253,19 @@ if [ -f "$HEADER" ]; then
   # scripts in head without defer
   if grep -qE '<script[^>]+src=' "$HEADER" 2>/dev/null; then
     if ! grep -qE '<script[^>]+(defer|async)' "$HEADER" 2>/dev/null; then
-      echo "WARN:header.html:render_blocking_script:<script src=...> in <head> without defer — blocks rendering"
+      echo "WARN:header.html:render_blocking_script:<script src=...> in <head> without defer - blocks rendering"
     fi
   fi
 fi
 
 if [ -f "$SCRIPTS" ]; then
-  # Check if scripts.js is referenced before </body> in header — look for it in footer
+  # Check if scripts.js is referenced before </body> in header - look for it in footer
   FOOTER="$ROOT/website/theme/$THEME/footer.html"
   if [ -f "$FOOTER" ]; then
     if grep -q 'scripts.js' "$FOOTER" 2>/dev/null; then
       echo "OK:scripts.js:placement:loaded in footer (non-blocking)"
     elif [ -f "$HEADER" ] && grep -q 'scripts.js' "$HEADER" 2>/dev/null; then
-      echo "WARN:scripts.js:placement:loaded in <head> — move to footer or add defer for better LCP"
+      echo "WARN:scripts.js:placement:loaded in <head> - move to footer or add defer for better LCP"
     fi
   fi
 fi

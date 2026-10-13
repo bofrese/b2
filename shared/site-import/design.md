@@ -1,21 +1,21 @@
 # Design Capability
 
 Screenshot key pages of an existing site and extract a short look/feel brief, formatted to seed
-`design-expert`'s interview opening ("here's your current look — what do you like, what doesn't
+`design-expert`'s interview opening ("here's your current look - what do you like, what doesn't
 work?").
 
-## Playwright detection — reuse, do not reimplement
+## Playwright detection - reuse, do not reimplement
 
 Use the exact same detection order as `website-review-expert` (`b2/skills/website-review-expert/SKILL.md`
 Step 3):
 
-1. **MCP browser tools** — if `browser_navigate` / `browser_take_screenshot` are available in this
+1. **MCP browser tools** - if `browser_navigate` / `browser_take_screenshot` are available in this
    session, use them directly.
-2. **npx playwright** — `npx playwright --version 2>/dev/null || echo "not found"`; if found:
+2. **npx playwright** - `npx playwright --version 2>/dev/null || echo "not found"`; if found:
    `npx playwright screenshot {url} {path}`.
-3. **playwright CLI** — `playwright --version 2>/dev/null || echo "not found"`; if found:
+3. **playwright CLI** - `playwright --version 2>/dev/null || echo "not found"`; if found:
    `playwright screenshot {url} {path}`.
-4. **None available** — halt this capability only (Content/Structure/Assets are unaffected):
+4. **None available** - halt this capability only (Content/Structure/Assets are unaffected):
    > "Playwright not found. Install it with `npx playwright install`, or add the Playwright MCP
    > plugin to Claude Code. Then re-run the design import."
 
@@ -32,7 +32,7 @@ Step 3):
 4. Write `website/docs/site-import/design-brief.md` (create the directory first):
 
 ```markdown
-# Site Import — Look/Feel Brief
+# Site Import - Look/Feel Brief
 *Source: {url}, imported {date}*
 
 ## Colour impression
@@ -48,6 +48,6 @@ Step 3):
 - .playwright-mcp/site-import/{slug}.png (one per page reviewed)
 ```
 
-5. Tell the user this brief exists and that `/b2:design` will open its aesthetic interview with it —
+5. Tell the user this brief exists and that `/b2:design` will open its aesthetic interview with it - 
    this capability does not run that interview itself, and does not decide whether the existing look
    is kept; that's the user's call during the design interview.

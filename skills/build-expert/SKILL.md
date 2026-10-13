@@ -5,7 +5,7 @@ description: This skill should be used when the user runs "/b2:build", asks to "
 
 # b2 Build Expert
 
-Day-to-day build orchestrator. Detect stale files → sync if needed → assemble → optionally verify. Does not reimplement make — calls it when available.
+Day-to-day build orchestrator. Detect stale files → sync if needed → assemble → optionally verify. Does not reimplement make - calls it when available.
 
 ---
 
@@ -19,7 +19,7 @@ which make 2>/dev/null && echo "make" || echo "scripts"
 
 ---
 
-## Step 1 — Check for Stale Files
+## Step 1 - Check for Stale Files
 
 Run stale detection using the plugin script (Bash tool):
 
@@ -28,25 +28,25 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/build-expert/scripts/check-stale.sh"
 ```
 
 Parse the output by prefix:
-- `item:` lines — content files needing sync
-- `index:` lines — index files needing regeneration
-- `theme:` lines — theme CSS/JS files newer than their `dist/` copies
+- `item:` lines - content files needing sync
+- `index:` lines - index files needing regeneration
+- `theme:` lines - theme CSS/JS files newer than their `dist/` copies
 
 Report:
 - `"N content file(s) stale."` / `"Nothing to sync."` (for item: + index:)
-- `"Theme files changed — will copy to dist/ on assembly."` (for theme: lines)
+- `"Theme files changed - will copy to dist/ on assembly."` (for theme: lines)
 
 ---
 
-## Step 2 — Sync if Stale
+## Step 2 - Sync if Stale
 
-If `item:` or `index:` lines were found, use the Skill tool to invoke the `b2:sync-expert` skill — it will re-detect and convert all stale files. Do not call `/b2:sync` recursively — invoke the skill directly.
+If `item:` or `index:` lines were found, use the Skill tool to invoke the `b2:sync-expert` skill - it will re-detect and convert all stale files. Do not call `/b2:sync` recursively - invoke the skill directly.
 
 After sync completes, report what was converted.
 
 ---
 
-## Step 3 — Assemble
+## Step 3 - Assemble
 
 **If BUILD_TOOL=make:**
 
@@ -66,20 +66,20 @@ Report result.
 
 ---
 
-## Step 4 — Verify (Optional)
+## Step 4 - Verify (Optional)
 
 For any **newly created** partial (first sync of a file), offer visual verification:
 
 > "New page detected: `{page}`. Run `/b2:website-review {page}` to screenshot and verify the layout."
 
-Do not auto-run website-review on every build — only flag new or significantly changed pages (a partial growing by >50% in size or going from stub to real content).
+Do not auto-run website-review on every build - only flag new or significantly changed pages (a partial growing by >50% in size or going from stub to real content).
 
 If Playwright is not installed (determined by attempting `browser_take_screenshot` or running `npx playwright --version 2>/dev/null`), note:
-> "Playwright not found — skipping visual verification. Run `/b2:website-review` manually after `/b2:serve`."
+> "Playwright not found - skipping visual verification. Run `/b2:website-review` manually after `/b2:serve`."
 
 ---
 
-## Step 5 — Report
+## Step 5 - Report
 
 ```
 Build complete.
@@ -87,7 +87,7 @@ Build complete.
   Synced:  2 files
   Built:   5 pages → website/dist/
 
-  about.html          ✓ new — run /b2:website-review about.html to verify
+  about.html          ✓ new - run /b2:website-review about.html to verify
   posts/index.html    ✓ updated
 
 Run /b2:serve to preview.

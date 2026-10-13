@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-b2 — check whether a PageSpeed Insights API key is available
+b2 - check whether a PageSpeed Insights API key is available
 Checks: .env file → GOOGLE_PAGESPEED_API_KEY/PAGESPEED_API_KEY environment variable
 Exit code: 0 if found, 1 if missing
 Stdout: OK:<source> or MISSING

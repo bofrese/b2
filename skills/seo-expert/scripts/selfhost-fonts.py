@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-selfhost-fonts.py — Download CDN-hosted webfonts as self-hosted woff2 (latin
+selfhost-fonts.py - Download CDN-hosted webfonts as self-hosted woff2 (latin
 subset only where the provider splits by subset).
 
 Detects ANY external font-CDN stylesheet in header.html, not just Google
-Fonts — a design can easily load two or three foundries at once (e.g. Google
+Fonts - a design can easily load two or three foundries at once (e.g. Google
 Fonts for body text, Fontshare/Adobe Fonts/Bunny Fonts for display headings),
 and a fix that only handles one leaves the others as an invisible render-
 blocking cost that "looks handled" because a similar-looking fix already ran.
 Detection works by fetching each external <link rel="stylesheet"> and checking
-whether the response contains @font-face — provider-agnostic, no per-CDN
+whether the response contains @font-face - provider-agnostic, no per-CDN
 special-casing needed.
 
 Note on variable fonts: modern Google Fonts responses often serve ONE woff2
 file covering an entire weight range, with several @font-face blocks (one per
 discrete weight) all pointing at that same file. This is standard, correct
-variable-font technique — browsers instantiate the right weight from the
-file's axis — not a bug. Don't "fix" it into separate per-weight downloads.
+variable-font technique - browsers instantiate the right weight from the
+file's axis - not a bug. Don't "fix" it into separate per-weight downloads.
 
 Reads header.html, downloads the font files, generates @font-face CSS with
 font-display: swap, prepends it to styles.css (theme + dist copies), and
@@ -65,7 +65,7 @@ def get_theme(argv):
 
 def find_stylesheet_links(header_path):
     """Return every external (https://) <link rel="stylesheet" href="..."> in
-    header.html, regardless of attribute order. Provider-agnostic — callers
+    header.html, regardless of attribute order. Provider-agnostic - callers
     fetch each and check for @font-face to decide which are font CDNs."""
     with open(header_path) as f:
         content = f.read()
@@ -89,7 +89,7 @@ def parse_font_face_blocks(css):
     """Return @font-face blocks. If the CSS is split into subset comments
     (Google Fonts convention: /* latin */, /* cyrillic */, ...), keep only
     the latin subset. If a provider ships no subset comments at all (many
-    non-Google foundries — one universal file per weight), keep everything."""
+    non-Google foundries - one universal file per weight), keep everything."""
     chunks = re.split(r'(/\*[^*]*\*/\s*)', css)
     all_blocks = []
     latin_blocks = []
@@ -141,7 +141,7 @@ def download_file(url, dest):
 
 
 def build_font_face_css(blocks, url_to_local):
-    lines = ["/* Self-hosted fonts — latin subset only */"]
+    lines = ["/* Self-hosted fonts - latin subset only */"]
     for b in blocks:
         fname = url_to_local[b["url"]]
         unicode_line = f"\n  unicode-range: {b['urange']};" if b["urange"] else ""
@@ -168,7 +168,7 @@ def prepend_to_css(css_path, font_css):
 
 
 def preload_tags(blocks, url_to_local):
-    """Preload the base (400, non-italic) weight of each distinct family —
+    """Preload the base (400, non-italic) weight of each distinct family - 
     that's the one most likely to gate first paint of visible text."""
     seen_families = set()
     tags = []
@@ -294,7 +294,7 @@ def main():
         print(f"\nDONE:audit:{len(url_to_local)} font files:{len(all_blocks)} @font-face blocks")
         return
 
-    # Fix mode — download, patch styles.css, patch header.html directly
+    # Fix mode - download, patch styles.css, patch header.html directly
     os.makedirs(FONTS_DIR, exist_ok=True)
     downloaded = 0
     for url, fname in url_to_local.items():

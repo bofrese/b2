@@ -10,26 +10,26 @@ Google's core algorithm goal is to surface the page that best satisfies a search
 
 ---
 
-## Priority Stack — Ranked by Leverage
+## Priority Stack - Ranked by Leverage
 
 Work this stack top-to-bottom. Don't optimise copy before fixing indexation. Don't build backlinks before fixing technical.
 
 ### 1. Crawlability and Indexation (foundation)
 Nothing else matters if Google can't crawl and index the page.
 
-- **robots.txt** — must not accidentally block `/`. Test at `yourdomain.com/robots.txt`.
-- **sitemap.xml** — must exist, be submitted to Google Search Console, and cover all canonical pages.
-- **Canonical tags** — every page needs `<link rel="canonical" href="...">`. Prevents duplicate content penalties from www/non-www, trailing slash variations, and URL parameters.
-- **noindex audit** — check no pages accidentally carry `<meta name="robots" content="noindex">`.
-- **HTTPS** — required. Mixed content (HTTP assets on HTTPS page) triggers browser warnings and ranking penalties.
-- **404 handling** — broken internal links waste crawl budget and signal poor site health.
+- **robots.txt** - must not accidentally block `/`. Test at `yourdomain.com/robots.txt`.
+- **sitemap.xml** - must exist, be submitted to Google Search Console, and cover all canonical pages.
+- **Canonical tags** - every page needs `<link rel="canonical" href="...">`. Prevents duplicate content penalties from www/non-www, trailing slash variations, and URL parameters.
+- **noindex audit** - check no pages accidentally carry `<meta name="robots" content="noindex">`.
+- **HTTPS** - required. Mixed content (HTTP assets on HTTPS page) triggers browser warnings and ranking penalties.
+- **404 handling** - broken internal links waste crawl budget and signal poor site health.
 
 ### 2. Core Web Vitals (technical performance)
 Google uses CWV as a ranking tiebreaker. On competitive SERPs, poor CWV loses.
 
-- **LCP (Largest Contentful Paint)** — target < 2.5s. Common culprits: unoptimised hero image, render-blocking CSS/JS, slow server.
-- **CLS (Cumulative Layout Shift)** — target < 0.1. Common culprit: images without `width`/`height` attributes, late-loading fonts.
-- **INP (Interaction to Next Paint)** — target < 200ms. Replaced FID in 2024. Common culprit: heavy JavaScript on main thread. Static sites built by b2 typically score well here.
+- **LCP (Largest Contentful Paint)** - target < 2.5s. Common culprits: unoptimised hero image, render-blocking CSS/JS, slow server.
+- **CLS (Cumulative Layout Shift)** - target < 0.1. Common culprit: images without `width`/`height` attributes, late-loading fonts.
+- **INP (Interaction to Next Paint)** - target < 200ms. Replaced FID in 2024. Common culprit: heavy JavaScript on main thread. Static sites built by b2 typically score well here.
 
 Tools: Google PageSpeed Insights (free), Chrome DevTools Lighthouse, Search Console CWV report.
 
@@ -39,16 +39,16 @@ Tools: Google PageSpeed Insights (free), Chrome DevTools Lighthouse, Search Cons
 - 50–60 characters. Over 60 gets truncated in SERPs.
 - Primary keyword first or second word. Don't bury it at the end.
 - Every page needs a unique title.
-- Treat it as ad copy — it drives click-through rate, which is a feedback ranking signal.
+- Treat it as ad copy - it drives click-through rate, which is a feedback ranking signal.
 
 **Meta description** (drives CTR, not a ranking signal):
 - 150–160 characters. Google rewrites ~70% of them, but a good one still improves CTR.
 - Include the primary keyword (Google bolds matches in SERPs).
-- Write a compelling reason to click — don't just describe, sell the click.
+- Write a compelling reason to click - don't just describe, sell the click.
 
 **H1**:
 - One per page. Contains the primary keyword.
-- Different from the title tag is fine (often better — H1 can be more editorial, title tag more SERP-optimised).
+- Different from the title tag is fine (often better - H1 can be more editorial, title tag more SERP-optimised).
 
 **Heading hierarchy**:
 - H1 → H2 → H3 without skipping levels.
@@ -61,7 +61,7 @@ Tools: Google PageSpeed Insights (free), Chrome DevTools Lighthouse, Search Cons
 
 **Keyword placement**:
 - Keyword in title, H1, first 100 words, at least one H2, meta description.
-- Natural usage — do not stuff. Semantic synonyms and related terms are as valuable as exact match.
+- Natural usage - do not stuff. Semantic synonyms and related terms are as valuable as exact match.
 
 **Image optimisation**:
 - Descriptive file names: `seo-audit-checklist.jpg` beats `IMG_4821.jpg`.
@@ -70,7 +70,7 @@ Tools: Google PageSpeed Insights (free), Chrome DevTools Lighthouse, Search Cons
 - `width` and `height` attributes to prevent CLS.
 
 **Internal linking**:
-- Every page should be reachable via internal links — no orphan pages.
+- Every page should be reachable via internal links - no orphan pages.
 - Use descriptive anchor text with target keyword (not "click here").
 - Your highest-authority pages (most backlinks) should link to the pages you most want to rank.
 - This distributes PageRank where you need it most.
@@ -84,21 +84,21 @@ Tools: Google PageSpeed Insights (free), Chrome DevTools Lighthouse, Search Cons
 These overlap significantly with SEO. Google's crawler reads HTML like a screen reader.
 
 - Semantic landmarks: `<main>`, `<nav>`, `<header>`, `<footer>`, `<article>`, `<section>`.
-- `lang` attribute on `<html>` — required for language detection.
-- `viewport` meta tag — required for mobile-first indexing.
+- `lang` attribute on `<html>` - required for language detection.
+- `viewport` meta tag - required for mobile-first indexing.
 - Focus states visible. Links have descriptive text.
 
 ### 5. Structured Data (Schema Markup)
 JSON-LD structured data helps Google understand page content beyond keywords. It powers rich results (star ratings, FAQ dropdowns, sitelinks search box) which dramatically improve CTR.
 
 High-value schema types:
-- `Organization` — for the business/site itself. Include `sameAs` pointing to social profiles, Wikipedia, Crunchbase, etc. This establishes your entity in Google's Knowledge Graph.
-- `WebSite` — enables sitelinks search box.
-- `WebPage` / `Article` / `BlogPosting` — for content pages.
-- `FAQPage` — for FAQ sections. Generates expandable dropdown in SERPs.
-- `HowTo` — for step-by-step guides.
-- `BreadcrumbList` — for navigational context.
-- `Product` + `AggregateRating` — if selling anything.
+- `Organization` - for the business/site itself. Include `sameAs` pointing to social profiles, Wikipedia, Crunchbase, etc. This establishes your entity in Google's Knowledge Graph.
+- `WebSite` - enables sitelinks search box.
+- `WebPage` / `Article` / `BlogPosting` - for content pages.
+- `FAQPage` - for FAQ sections. Generates expandable dropdown in SERPs.
+- `HowTo` - for step-by-step guides.
+- `BreadcrumbList` - for navigational context.
+- `Product` + `AggregateRating` - if selling anything.
 
 All schema should be in `<script type="application/ld+json">` blocks in `<head>`. Validate at schema.org/validator or Google's Rich Results Test.
 
@@ -141,12 +141,12 @@ Featured snippets appear above organic results and capture ~35% of clicks.
 To win snippets:
 - Ask the exact question as an H2 heading.
 - Answer it in 40–60 words directly below the heading.
-- For list snippets: use `<ul>` or `<ol>` with 8+ items (Google truncates and shows "more items" — a CTR increase).
+- For list snippets: use `<ul>` or `<ol>` with 8+ items (Google truncates and shows "more items" - a CTR increase).
 - For table snippets: use proper `<table>` markup.
-- Must already rank on page 1 for the query — snippets are not a shortcut to ranking.
+- Must already rank on page 1 for the query - snippets are not a shortcut to ranking.
 
 ### 9. Entity SEO (advanced)
-Google's Knowledge Graph understands entities (people, companies, products, places) and their relationships — not just keywords. A site associated with a known entity ranks with more confidence.
+Google's Knowledge Graph understands entities (people, companies, products, places) and their relationships - not just keywords. A site associated with a known entity ranks with more confidence.
 
 How to establish entity presence:
 - Consistent name/business details everywhere Google scrapes.
@@ -163,14 +163,14 @@ Still the strongest ranking signal. Cannot be faked sustainably.
 Quality over quantity:
 - One link from a relevant, authoritative source in your niche beats 100 from directories.
 - Links from pages that themselves rank for your target keywords are disproportionately valuable.
-- Anchor text diversity — over-optimised anchor text (all exact match) is a Penguin penalty signal.
+- Anchor text diversity - over-optimised anchor text (all exact match) is a Penguin penalty signal.
 
 Link acquisition strategies (white-hat):
 - Original research / data that others cite.
 - Tools and resources (calculators, templates, guides) that attract natural links.
 - Guest posts on relevant industry sites.
-- HARO (Help a Reporter Out) — earn media links.
-- Broken link building — find broken links on relevant sites, offer your page as replacement.
+- HARO (Help a Reporter Out) - earn media links.
+- Broken link building - find broken links on relevant sites, offer your page as replacement.
 
 ### 11. CTR Optimisation (SERP click-through)
 Google uses CTR as a ranking feedback signal. A page that outperforms its position's expected CTR will be promoted.
@@ -189,45 +189,45 @@ Meta description tactics:
 
 ### 12. Technical Deep Cuts (for advanced audits)
 
-**Log file analysis** — your server logs show exactly what Googlebot crawls, how often, and where it wastes budget. Most SEOs never do this. Reveals: pages crawled repeatedly but not ranking (quality signal issue), pages never crawled (internal link problem), crawl budget wasted on filter/parameter URLs.
+**Log file analysis** - your server logs show exactly what Googlebot crawls, how often, and where it wastes budget. Most SEOs never do this. Reveals: pages crawled repeatedly but not ranking (quality signal issue), pages never crawled (internal link problem), crawl budget wasted on filter/parameter URLs.
 
-**Crawl budget management** — large sites: block low-value URLs (search filters, session parameters, duplicate listing variants) in robots.txt or via canonical.
+**Crawl budget management** - large sites: block low-value URLs (search filters, session parameters, duplicate listing variants) in robots.txt or via canonical.
 
-**Redirect chains** — A→B→C wastes crawl budget and dilutes link equity. Flatten to direct redirects.
+**Redirect chains** - A→B→C wastes crawl budget and dilutes link equity. Flatten to direct redirects.
 
-**Hreflang** — for multilingual sites. Signals to Google which page to show for which language/region. Common mistake: hreflang tags that don't reference each other (must be bidirectional).
+**Hreflang** - for multilingual sites. Signals to Google which page to show for which language/region. Common mistake: hreflang tags that don't reference each other (must be bidirectional).
 
-**Pagination** — for paginated series, use `rel=next`/`rel=prev` or canonical to index page to handle duplicate content.
+**Pagination** - for paginated series, use `rel=next`/`rel=prev` or canonical to index page to handle duplicate content.
 
-**JavaScript SEO** — if content is rendered client-side by JavaScript, Google may not index it. Use server-side rendering (SSR) or static generation for SEO-critical content. b2 generates static HTML — no JS rendering issues.
+**JavaScript SEO** - if content is rendered client-side by JavaScript, Google may not index it. Use server-side rendering (SSR) or static generation for SEO-critical content. b2 generates static HTML - no JS rendering issues.
 
 ---
 
 ## What Not To Do
 
-- **Keyword stuffing** — penalised. Natural language with semantic variation is what works.
-- **Buying links** — manual penalty risk. Not worth it.
-- **Duplicate content** — dilutes authority. Canonical everything that might duplicate.
-- **Thin affiliate pages** — Google's Helpful Content updates specifically target these.
-- **Cloaking** — showing different content to Googlebot than to users. Permanent penalty risk.
-- **Hidden text** — same font colour as background, 0px text, etc. Detected and penalised.
-- **Private Blog Networks (PBNs)** — link schemes. Risk vs. reward not worth it.
-- **Exact-match anchor text at scale** — over-optimised. Use branded + natural + keyword mix.
+- **Keyword stuffing** - penalised. Natural language with semantic variation is what works.
+- **Buying links** - manual penalty risk. Not worth it.
+- **Duplicate content** - dilutes authority. Canonical everything that might duplicate.
+- **Thin affiliate pages** - Google's Helpful Content updates specifically target these.
+- **Cloaking** - showing different content to Googlebot than to users. Permanent penalty risk.
+- **Hidden text** - same font colour as background, 0px text, etc. Detected and penalised.
+- **Private Blog Networks (PBNs)** - link schemes. Risk vs. reward not worth it.
+- **Exact-match anchor text at scale** - over-optimised. Use branded + natural + keyword mix.
 
 ---
 
 ## Measurement: What to Track
 
 **Google Search Console** (free, essential):
-- Index Coverage — crawl errors, excluded pages.
-- Core Web Vitals — real-user data.
-- Performance — clicks, impressions, CTR, average position by query and page.
-- Rich Results — schema validation and coverage.
+- Index Coverage - crawl errors, excluded pages.
+- Core Web Vitals - real-user data.
+- Performance - clicks, impressions, CTR, average position by query and page.
+- Rich Results - schema validation and coverage.
 
 **Google Analytics 4** (free):
 - Organic traffic channel, landing pages, conversion rates.
 
-**Rank tracking** (paid tools — Ahrefs, Semrush, Moz — or free Ubersuggest):
+**Rank tracking** (paid tools - Ahrefs, Semrush, Moz - or free Ubersuggest):
 - Track target keywords weekly.
 - Monitor competitor movement.
 
@@ -242,4 +242,4 @@ Meta description tactics:
 
 ## The Meta-Insight
 
-The sites that dominate SERPs long-term are not the most technically optimised — they are the ones that most reliably satisfy users. Every major algorithm update (Panda, Penguin, Helpful Content, Core Updates) has hurt sites gaming proxies and helped sites genuinely useful to searchers. Optimise for the user. Instrument it with the tools above. Google follows.
+The sites that dominate SERPs long-term are not the most technically optimised - they are the ones that most reliably satisfy users. Every major algorithm update (Panda, Penguin, Helpful Content, Core Updates) has hurt sites gaming proxies and helped sites genuinely useful to searchers. Optimise for the user. Instrument it with the tools above. Google follows.

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-prep-images.py — Resize, compress, and convert images for web production.
+prep-images.py - Resize, compress, and convert images for web production.
 
 What this does:
-  1. Resize  — shrink to --max-width if larger (preserving aspect ratio)
-  2. Compress fallback — re-save the JPEG/PNG at web quality (removes bloat,
+  1. Resize - shrink to --max-width if larger (preserving aspect ratio)
+  2. Compress fallback - re-save the JPEG/PNG at web quality (removes bloat,
      EXIF data, and embedded colour profiles). The fallback is what browsers
      that don't support WebP receive, and what crawlers/bots often fetch.
-  3. Convert — create a .webp alongside the optimised fallback for modern browsers.
+  3. Convert - create a .webp alongside the optimised fallback for modern browsers.
 
 The <picture> pattern in HTML then serves WebP to 97%+ of users and the
 optimised JPEG/PNG to the rest. Both files are small.
@@ -31,7 +31,7 @@ USAGE
   Thumbnails / card images:
     python3 prep-images.py website/src/images/card.jpg --fix --max-width 800
 
-  After layout change — reconvert everything at new quality:
+  After layout change - reconvert everything at new quality:
     python3 prep-images.py website/src/images/ --fix --force
 
 OPTIONS
@@ -43,7 +43,7 @@ OPTIONS
   --delete-originals   Remove the oversized source file after processing.
                        Use only when originals are safely in git or a backup.
 
-OUTPUT FORMAT (structured lines — parsed by the seo-expert skill)
+OUTPUT FORMAT (structured lines - parsed by the seo-expert skill)
   TOOL:available:pillow=true:imagemagick=true:cwebp=true
   WOULD_FIX:path:WxH:NKB:actions
   RESIZE:path:3200x2000 → 1920x1200
@@ -59,7 +59,7 @@ REQUIREMENTS
   Pillow (preferred):  pip install Pillow
   Fallback options:    brew install webp   (cwebp)
                        brew install imagemagick
-  Pillow is strongly recommended — it handles fallback compression and is
+  Pillow is strongly recommended - it handles fallback compression and is
   more reliable than shell tool combinations.
 """
 
@@ -125,7 +125,7 @@ if not HAS_PILLOW and not HAS_IMAGEMAGICK and not HAS_CWEBP:
     sys.exit(1)
 
 if not HAS_PILLOW:
-    print("WARN:tools:Pillow not found — fallback JPEG/PNG compression unavailable.")
+    print("WARN:tools:Pillow not found - fallback JPEG/PNG compression unavailable.")
     print("INFO:tools:Install Pillow for best results: pip install Pillow")
 
 # ── File collection ────────────────────────────────────────────────
@@ -232,7 +232,7 @@ def process_with_pillow(src_path, max_width, webp_quality, jpg_quality):
             "webp_path":        webp_path,
         }
 
-# ── Shell fallback (no Pillow — WebP only, no fallback compression) ─
+# ── Shell fallback (no Pillow - WebP only, no fallback compression) ─
 def process_with_shell(src_path, max_width, webp_quality):
     orig_kb_val = kb(src_path)
     dims = get_dims(src_path)
@@ -292,7 +292,7 @@ for img_path in images:
     if ext == ".webp":
         dims = get_dims(img_path)
         if dims and dims[0] > MAX_WIDTH:
-            print(f"WARN:{rel}:webp is {dims[0]}px wide (>{MAX_WIDTH}px) — regenerate from source with --force")
+            print(f"WARN:{rel}:webp is {dims[0]}px wide (>{MAX_WIDTH}px) - regenerate from source with --force")
         else:
             print(f"OK:{rel}:webp:{dims_str(dims)}:{kb(img_path)}KB")
         skipped += 1
@@ -314,7 +314,7 @@ for img_path in images:
         skipped += 1
         continue
 
-    # ── Audit mode — report what would happen ─────────────────────
+    # ── Audit mode - report what would happen ─────────────────────
     if not FIX_MODE:
         actions = []
         if needs_resize:
@@ -322,7 +322,7 @@ for img_path in images:
         if HAS_PILLOW:
             actions.append(f"compress fallback (JPEG q{JPG_QUALITY})")
         actions.append(f"convert to WebP (q{WEBP_QUALITY})")
-        print(f"WOULD_FIX:{rel}:{dims_str(dims)}:{src_kb}KB — {', '.join(actions)}")
+        print(f"WOULD_FIX:{rel}:{dims_str(dims)}:{src_kb}KB - {', '.join(actions)}")
         continue
 
     # ── Fix mode ──────────────────────────────────────────────────
@@ -346,7 +346,7 @@ for img_path in images:
             total_saved_kb += max(fb_saved, 0) + max(webp_saved, 0)
 
         else:
-            # Shell fallback — WebP only, no fallback compression
+            # Shell fallback - WebP only, no fallback compression
             res = process_with_shell(img_path, MAX_WIDTH, WEBP_QUALITY)
             if not res["ok"]:
                 print(f"ERROR:{rel}:conversion failed")

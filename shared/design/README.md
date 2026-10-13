@@ -1,7 +1,7 @@
 # b2 Generic Design Foundation
 
-Shared, b2-internal reference module holding the **generic** design concern — named things (libraries,
-movements, systems, trends) plus design judgment — that b2's output-specific design skills draw on.
+Shared, b2-internal reference module holding the **generic** design concern - named things (libraries,
+movements, systems, trends) plus design judgment - that b2's output-specific design skills draw on.
 Load only the slice a phase needs; do not read the whole module at once (progressive disclosure,
 token-lean).
 
@@ -15,12 +15,12 @@ token-lean).
 |-------|------|--------|
 | `design-expert` (website design) | `web-design-principles.md` (always), plus per-phase slices | Now (this slice) |
 | `present-design-expert` (presentation theme design) | `web-design-principles.md`, `interview-questions.md`, `styles-and-business.md`, `trends.md`, `animation-motion.md`, `3d-visual-effects.md`, `gallery-template.html` | Now (presentation slice) |
-| `present-build-expert` (presentation render) | `implementation-gotchas.md` — read on capture-ratchet promotion decisions, written to when a bug is promoted from a theme's local `design.md` | Now (capture ratchet) |
+| `present-build-expert` (presentation render) | `implementation-gotchas.md` - read on capture-ratchet promotion decisions, written to when a bug is promoted from a theme's local `design.md` | Now (capture ratchet) |
 | `illustrate-expert` | style/trend slices as needed | Optional, later |
 
-`art-director` is a **bob** skill, not a b2 skill — it cannot read this module. See the boundary note.
+`art-director` is a **bob** skill, not a b2 skill - it cannot read this module. See the boundary note.
 
-## Index — load-when trigger words
+## Index - load-when trigger words
 
 | File | Load when | Trigger words |
 |------|-----------|---------------|
@@ -30,20 +30,20 @@ token-lean).
 | `3d-visual-effects.md` | 3D/visual-effect is on the table | Three.js, R3F, drei, Babylon, Spline, WebGL, GLSL, Canvas 2D, when-3D-helps |
 | `design-systems.md` | Tokens, component systems, framework choice | design tokens, DTCG, Style Dictionary, Tailwind v4, Material 3, Radix, shadcn, DESIGN.md |
 | `trends.md` | "What's current", 2026 direction framing | tactile brutalism, bento matured, spatial UX, AI personalization, scrollytelling, kinetic type, native motion, OKLCH |
-| `interview-questions.md` | Interview grounding (Phase A1), gaps-only questioning — SHARED design+present | business & goals, audience, brand & personality, competitive context, content & conversion, constraints |
-| `presentation-design.md` | Presentation interview/mockups/theme-lock, always — presentation-specific discipline | stage typography, reading distance, pacing, beat philosophy, presentation psychology, curiosity gap, cognitive load, motion intensity ladder |
-| `gallery-template.html` | Any skill generating mockup concepts for review — not a trigger-word reference file, a template consumed via direct path (`${CLAUDE_PLUGIN_ROOT}/shared/design/gallery-template.html`) | mockup gallery, concept review, index.html generation |
-| `implementation-gotchas.md` | `present-build-expert`'s capture ratchet, before reporting — written to (not just read) when a genuine bug's fix is promoted from a theme's local `design.md` | reveal.js init timing, SVG/flexbox clipping, real defects found and fixed mid-build |
+| `interview-questions.md` | Interview grounding (Phase A1), gaps-only questioning - SHARED design+present | business & goals, audience, brand & personality, competitive context, content & conversion, constraints |
+| `presentation-design.md` | Presentation interview/mockups/theme-lock, always - presentation-specific discipline | stage typography, reading distance, pacing, beat philosophy, presentation psychology, curiosity gap, cognitive load, motion intensity ladder |
+| `gallery-template.html` | Any skill generating mockup concepts for review - not a trigger-word reference file, a template consumed via direct path (`${CLAUDE_PLUGIN_ROOT}/shared/design/gallery-template.html`) | mockup gallery, concept review, index.html generation |
+| `implementation-gotchas.md` | `present-build-expert`'s capture ratchet, before reporting - written to (not just read) when a genuine bug's fix is promoted from a theme's local `design.md` | reveal.js init timing, SVG/flexbox clipping, real defects found and fixed mid-build |
 
 
 ## bob/b2 boundary
 
 This module is **b2-internal**. bob designs product/app UI independently via `bob:ui-design`, with no
 website and no b2. The two plugins integrate only through well-known project files
-(`docs/product/*`, `website/docs/decisions.md`), never by reading each other's internal files — and the direction
+(`docs/product/*`, `website/docs/decisions.md`), never by reading each other's internal files - and the direction
 is one-way: bob may wrap b2's file outputs when co-installed, never the reverse. Any knowledge overlap
 across the plugin boundary is the accepted cost of independence (independence > cross-plugin DRY). If
-bob ever adopts the same fact base, vendor it from one dev-time source at release — do not merge the
+bob ever adopts the same fact base, vendor it from one dev-time source at release - do not merge the
 plugins or add runtime plugin-detection.
 
 ## Sources (2026 claims)

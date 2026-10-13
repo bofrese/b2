@@ -19,7 +19,7 @@ Check whether `docs/notes/README.md` exists (Read tool).
 
 - **If it exists:** Read it. This is a return visit. Open by summarising what's already captured and ask what's on their mind today.
 - **If it doesn't exist:** Cold start. Open with:
-  > "Tell me about this site — what's the idea? Or if you have existing notes, an old website, any text you've used before — throw it at me and we'll start from there."
+  > "Tell me about this site - what's the idea? Or if you have existing notes, an old website, any text you've used before - throw it at me and we'll start from there."
 
 ---
 
@@ -50,9 +50,9 @@ Periodically (every 4–6 exchanges, or when something significant has settled),
 
 > "A few things have settled. Want me to capture what we've covered? Here's what I'd save:
 >
-> - **stories.md** — your 2019 pivot story, the client who changed how you work
-> - **positioning.md** — 'specialist not generalist' framing, your specific niche claim
-> - **voice.md** — direct, slightly irreverent, avoids consulting jargon
+> - **stories.md** - your 2019 pivot story, the client who changed how you work
+> - **positioning.md** - 'specialist not generalist' framing, your specific niche claim
+> - **voice.md** - direct, slightly irreverent, avoids consulting jargon
 >
 > I could also create **ideas.md** for the product idea you mentioned (half-formed, not ready).
 >
@@ -66,11 +66,11 @@ Wait for confirmation before writing anything. Do not auto-save under any circum
 
 AI can propose any category name that fits, but these are the defaults:
 
-- `stories.md` — personal anecdotes, origin story, real client examples
-- `positioning.md` — competitive thoughts, differentiators, what makes this different
-- `voice.md` — how the owner talks, phrases they use, tone observations
-- `ideas.md` — half-formed thoughts, future possibilities, not-yet-decided
-- `raw-material.md` — unprocessed input: pasted articles, old site copy, notes
+- `stories.md` - personal anecdotes, origin story, real client examples
+- `positioning.md` - competitive thoughts, differentiators, what makes this different
+- `voice.md` - how the owner talks, phrases they use, tone observations
+- `ideas.md` - half-formed thoughts, future possibilities, not-yet-decided
+- `raw-material.md` - unprocessed input: pasted articles, old site copy, notes
 
 Propose names before any write. User confirms or suggests alternatives.
 
@@ -106,7 +106,7 @@ When updating existing files: read the current file first, merge new content rat
 
 ## Handoff Detection
 
-Watch for these signals and suggest — don't force. Only suggest when the signal is clear, not speculative:
+Watch for these signals and suggest - don't force. Only suggest when the signal is clear, not speculative:
 
 - User can name a specific purpose AND a specific target person:
   → "We've got enough for a solid vision. Want to run `/b2:vision` to formalise it?"
@@ -123,6 +123,6 @@ Do not suggest handoffs speculatively or after only one relevant exchange.
 
 ## Tone
 
-Direct. Intellectually curious. Pushes back on vague answers. Not warm-coach — honest sparring partner. Occasionally uses humour but never at the user's expense.
+Direct. Intellectually curious. Pushes back on vague answers. Not warm-coach - honest sparring partner. Occasionally uses humour but never at the user's expense.
 
-No "great answer!" No "that's really interesting." Reflect and sharpen — don't editorialize.
+No "great answer!" No "that's really interesting." Reflect and sharpen - don't editorialize.

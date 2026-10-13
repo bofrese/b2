@@ -1,6 +1,6 @@
 # b2 Site Import
 
-Shared, b2-internal module for bootstrapping a b2 project from an existing website — the user's own
+Shared, b2-internal module for bootstrapping a b2 project from an existing website - the user's own
 site being migrated onto b2. Mirrors `b2/shared/design/`'s pattern (B2-001): a README plus reference
 procedures, invoked by multiple skills, not a standalone command.
 
@@ -18,7 +18,7 @@ before acting; `trigger.md` states it once at the point of offering the import.
 | Design | `design.md` | `website/docs/site-import/design-brief.md` + screenshots | `design-expert`'s interview opening (seed) |
 | Assets | `assets.md` | Downloaded files in `website/src/images/` | `write-expert`/`design-expert` (as available media) |
 
-None of these bypass the downstream skill's normal interview — they seed it with real material
+None of these bypass the downstream skill's normal interview - they seed it with real material
 instead of a blank page, same relationship `write-expert/references/create.md`'s Step 1 content
 harvest already has to Step 3's outline proposal.
 
@@ -36,7 +36,7 @@ again.
 | `talk-expert` | `trigger.md` | Yes |
 | `write-expert` | `trigger.md` (first run only), `content.md` | Yes |
 | `structure-expert` | `trigger.md`, `structure.md` output as interview seed | Yes |
-| `design-expert` | `design.md` output as interview-opening seed | No — consumes only, never asks the gate |
+| `design-expert` | `design.md` output as interview-opening seed | No - consumes only, never asks the gate |
 
 ## Playwright
 
@@ -45,8 +45,8 @@ The Design capability reuses `website-review-expert`'s exact Playwright detectio
 
 ## Notes on WebFetch vs Playwright
 
-Content and Structure default to WebFetch — sufficient for static/server-rendered pages, which covers
+Content and Structure default to WebFetch - sufficient for static/server-rendered pages, which covers
 most small marketing sites b2 targets. If a page's fetched text is near-empty (JS-rendered SPA
 content), note it in the report and point at the Design capability's Playwright path as a manual
-fallback rather than silently switching strategies — a working WebFetch-based import is the priority,
+fallback rather than silently switching strategies - a working WebFetch-based import is the priority,
 not a general headless-browser scraper.

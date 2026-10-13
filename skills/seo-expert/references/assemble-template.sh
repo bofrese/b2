@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# assemble.sh — b2 project assembler with full SEO variable injection.
+# assemble.sh - b2 project assembler with full SEO variable injection.
 #
 # Reads frontmatter from website/src/*.md and injects into header.html placeholders:
 #   {{TITLE}}          page <title>
@@ -10,7 +10,7 @@
 #   {{OG_IMAGE}}       og:image full URL (from og_image frontmatter field)
 #   {{OG_TYPE}}        article | website
 #   {{LCP_PRELOAD}}    <link rel="preload"> for hero image (auto-detected)
-#   {{ASSET_VERSION}}  content-hash of styles.css/scripts.js — cache-busting query param
+#   {{ASSET_VERSION}}  content-hash of styles.css/scripts.js - cache-busting query param
 #
 # Requires: website/scripts/lcp-image.py (included alongside this template)
 #
@@ -28,7 +28,7 @@ partials="$root/website/partials"
 dist="$root/website/dist"
 src="$root/website/src"
 
-# --- Site configuration — edit these ---
+# --- Site configuration - edit these ---
 BASE_URL="https://example.com"
 DEFAULT_DESC="Replace with your site's default meta description."
 DEFAULT_OG_IMAGE="${BASE_URL}/images/social-card.png"
@@ -43,7 +43,7 @@ for f in "$theme"/*.css "$theme"/*.js; do
   [ -f "$f" ] && cp "$f" "$dist/"
 done
 
-# Cache-busting query param for /styles.css and /scripts.js — an 8-char hash of their
+# Cache-busting query param for /styles.css and /scripts.js - an 8-char hash of their
 # own content, so the URL only changes (and old cached copies get orphaned) when the
 # asset actually does. Pairs with the long-cache Cache-Control rules in website/src/.htaccess.
 asset_version=$(cat "$theme"/*.css "$theme"/*.js 2>/dev/null | shasum | cut -c1-8)
@@ -75,7 +75,7 @@ find "$partials" -name "*.html" | LC_ALL=C sort | while read -r partial; do
   fi
 
   # Fallbacks
-  [ -z "$title" ]    && title="$(basename "${rel%.html}" | sed 's/-/ /g' | sed 's/\b./\u&/g') — Site Name"
+  [ -z "$title" ]    && title="$(basename "${rel%.html}" | sed 's/-/ /g' | sed 's/\b./\u&/g') - Site Name"
   [ -z "$desc" ]     && desc="$DEFAULT_DESC"
 
   # Canonical URL

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-b2 — remove image background using rembg
+b2 - remove image background using rembg
 Usage: python3 remove-bg.py <input_path> [output_path]
 Output: transparent PNG. Defaults to <input_stem>-nobg.png alongside the input file.
 Exit codes: 0 success, 1 rembg not installed, 2 error

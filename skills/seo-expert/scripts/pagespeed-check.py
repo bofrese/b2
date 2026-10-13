@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-pagespeed-check.py — Call the Google PageSpeed Insights API and report a
+pagespeed-check.py - Call the Google PageSpeed Insights API and report a
 focused, machine-parsable summary of Core Web Vitals and top opportunities.
 
-No browser automation, no Chrome extension dependency — just the public
+No browser automation, no Chrome extension dependency - just the public
 REST API (stdlib urllib only). Works headlessly in any environment.
 
 Usage:
   python3 pagespeed-check.py <url> [--strategy mobile|desktop] [--categories performance,accessibility,best-practices,seo]
 
-  URL must be the LIVE, published URL — PageSpeed cannot see localhost or
+  URL must be the LIVE, published URL - PageSpeed cannot see localhost or
   unpublished dist/ files. The caller is responsible for confirming with the
   user that the current build has been published before running this.
 
 Auth:
-  Works without a key (small shared quota — often already exhausted, since
+  Works without a key (small shared quota - often already exhausted, since
   it's a global bucket shared by every unauthenticated caller, not per-IP).
   A free key removes this: enable the PageSpeed Insights API in Google Cloud
   Console and create an API key (no billing required for this API). Read
@@ -22,16 +22,16 @@ Auth:
   (project root), then the same names as real environment variables.
   See references/pagespeed-api-key.md for the guided setup flow.
 
-Output format (stable, prefix-based — parse by leading token):
+Output format (stable, prefix-based - parse by leading token):
   STRATEGY:{mobile|desktop}
   SCORE:{category}:{0-100}
   METRIC:{name}:{value}:{GOOD|NEEDS_IMPROVEMENT|POOR}
   FIELD_METRIC:{name}:{value}:{FAST|AVERAGE|SLOW}   (only if CrUX field data exists)
-  LCP_ELEMENT:{nodeLabel}:{css selector}            (what the LCP element actually is — often text, not an image)
-  LCP_PHASE:{phase label}:{ms}                      (time-to-first-byte / load delay / load time / render delay split —
+  LCP_ELEMENT:{nodeLabel}:{css selector}            (what the LCP element actually is - often text, not an image)
+  LCP_PHASE:{phase label}:{ms}                      (time-to-first-byte / load delay / load time / render delay split - 
                                                       a near-zero fetch phase with a large "Element render delay" means
                                                       the resource loaded fine and something on the main thread is
-                                                      delaying paint; that's a scheduling problem, not a resource one —
+                                                      delaying paint; that's a scheduling problem, not a resource one - 
                                                       see "sequence, don't cut" in references/b2-seo-guide.md)
   BLOCKING_RESOURCE:{url}:{wastedMs}                (render-blocking-insight items, sorted worst first)
   OPPORTUNITY:{audit_id}:{title}:{savings}
@@ -144,7 +144,7 @@ def main():
     args = parser.parse_args()
 
     if "localhost" in args.url or "127.0.0.1" in args.url:
-        print("ERROR:local_url:PageSpeed cannot test localhost — publish first, then pass the live URL")
+        print("ERROR:local_url:PageSpeed cannot test localhost - publish first, then pass the live URL")
         sys.exit(1)
 
     categories = [c.strip() for c in args.categories.split(",") if c.strip()]
@@ -169,7 +169,7 @@ def main():
 
     lighthouse = data.get("lighthouseResult")
     if not lighthouse:
-        print("ERROR:no_lighthouse_result:API returned no lighthouseResult — check the URL is publicly reachable")
+        print("ERROR:no_lighthouse_result:API returned no lighthouseResult - check the URL is publicly reachable")
         sys.exit(1)
 
     print(f"STRATEGY:{args.strategy}")
@@ -207,7 +207,7 @@ def main():
             value_str = "n/a"
         print(f"FIELD_METRIC:{label}:{value_str}:{category}")
 
-    # ── LCP breakdown — what the LCP element actually is, and whether the
+    # ── LCP breakdown - what the LCP element actually is, and whether the
     # bottleneck is fetching it or rendering it (main-thread contention) ──
     lcp_breakdown = audits.get("lcp-breakdown-insight")
     if lcp_breakdown:
@@ -245,7 +245,7 @@ def main():
     for _, audit_id, title, savings in opportunities[:10]:
         print(f"OPPORTUNITY:{audit_id}:{title}:{savings}")
 
-    # ── Diagnostics — other failing audits not already covered above ──
+    # ── Diagnostics - other failing audits not already covered above ──
     covered = set(METRIC_LABELS) | {a for _, a, _, _ in opportunities}
     diagnostics = []
     for audit_id, audit in audits.items():

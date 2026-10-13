@@ -1,4 +1,4 @@
-# CLAUDE.md — b2 Plugin
+# CLAUDE.md - b2 Plugin
 
 Read `b2/skills/b2/resources/knowledge.md` at the start of any session that touches b2 plugin files.
 

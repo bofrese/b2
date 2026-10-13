@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# assemble.sh — build dist/ from partials + theme (fallback when make is unavailable)
+# assemble.sh - build dist/ from partials + theme (fallback when make is unavailable)
 # Injects per-page SEO values from src/*.md frontmatter into theme/header.html
 # placeholders ({{TITLE}}, {{DESCRIPTION}}, {{CANONICAL}}, {{OG_TITLE}},
 # {{OG_DESCRIPTION}}, {{OG_IMAGE}}, {{ROBOTS}}, {{LCP_PRELOAD}}). If the header
 # has none of these placeholders (older/custom theme), this degrades to a
-# plain concatenation — safe either way.
+# plain concatenation - safe either way.
 # Run from the project root.
 
 root="$(pwd)"
@@ -31,10 +31,10 @@ fi
 
 mkdir -p "$dist"
 
-# Copy theme CSS and JS, minified (pure-Python, no Node/npm dependency — see
+# Copy theme CSS and JS, minified (pure-Python, no Node/npm dependency - see
 # seo-expert/scripts/minify-css.py and minify-js.py for what's safe without a
-# real parser). Includes any vendored libraries (not mockup.html — a dev artifact).
-# CLAUDE_PLUGIN_ROOT is set by Claude Code when it invokes this script — falls
+# real parser). Includes any vendored libraries (not mockup.html - a dev artifact).
+# CLAUDE_PLUGIN_ROOT is set by Claude Code when it invokes this script - falls
 # back to a plain copy if it's somehow unset (e.g. run outside Claude Code).
 minify_css="${CLAUDE_PLUGIN_ROOT:-}/skills/seo-expert/scripts/minify-css.py"
 minify_js="${CLAUDE_PLUGIN_ROOT:-}/skills/seo-expert/scripts/minify-js.py"
@@ -61,7 +61,7 @@ if [ -d "$theme/assets" ]; then
   cp -R "$theme/assets/." "$dist/assets/"
 fi
 
-# Cache-busting query param for /styles.css and /scripts.js — an 8-char hash of their
+# Cache-busting query param for /styles.css and /scripts.js - an 8-char hash of their
 # own content, so the URL only changes (and old cached copies get orphaned) when the
 # asset actually does. Pairs with the long-cache Cache-Control rules in website/src/.htaccess.
 asset_version=$(cat "$theme"/*.css "$theme"/*.js 2>/dev/null | shasum | cut -c1-8)
@@ -92,7 +92,7 @@ find "$partials" -name "*.html" | LC_ALL=C sort | while read -r partial; do
     og_image=$(fm_get "$src_md" "og_image")
   fi
 
-  # Fallback if frontmatter is missing title/description — derive from filename
+  # Fallback if frontmatter is missing title/description - derive from filename
   # rather than emit an empty <title>/<meta description>.
   [ -z "$title" ] && title="$(basename "${rel%.html}" | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')"
   [ -z "$desc" ]  && desc="$title"
@@ -109,7 +109,7 @@ find "$partials" -name "*.html" | LC_ALL=C sort | while read -r partial; do
     og_image_url="$default_og_image"
   fi
 
-  # Internal dev/demo pages carry noindex: true in frontmatter — everything else is indexable.
+  # Internal dev/demo pages carry noindex: true in frontmatter - everything else is indexable.
   robots_tag=""
   if [ -f "$src_md" ] && [ -n "$(fm_get "$src_md" "noindex")" ]; then
     robots_tag='<meta name="robots" content="noindex, follow" />'

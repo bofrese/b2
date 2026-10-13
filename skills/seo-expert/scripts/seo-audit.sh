@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# seo-audit.sh — b2 SEO audit across website/dist/
+# seo-audit.sh - b2 SEO audit across website/dist/
 # Compatible with: macOS BSD grep (no -P), bash 3.2+
 #
 # Usage: bash seo-audit.sh [optional: specific page e.g. about.html]
@@ -12,7 +12,7 @@ DIST="$ROOT/website/dist"
 PAGE_ARG="${1:-}"
 
 if [ ! -d "$DIST" ]; then
-  echo "ERROR:dist_missing:website/dist/ not found — run /b2:build first"
+  echo "ERROR:dist_missing:website/dist/ not found - run /b2:build first"
   exit 1
 fi
 
@@ -51,9 +51,9 @@ for PAGE in $PAGES; do
   else
     LEN=${#TITLE}
     if [ "$LEN" -gt 60 ]; then
-      echo "WARN:$REL:title_long:${LEN} chars (ideal: 50-60) — \"$TITLE\""
+      echo "WARN:$REL:title_long:${LEN} chars (ideal: 50-60) - \"$TITLE\""
     elif [ "$LEN" -lt 20 ]; then
-      echo "WARN:$REL:title_short:${LEN} chars (too short) — \"$TITLE\""
+      echo "WARN:$REL:title_short:${LEN} chars (too short) - \"$TITLE\""
     else
       echo "OK:$REL:title:\"$TITLE\" (${LEN} chars)"
     fi
@@ -129,7 +129,7 @@ for PAGE in $PAGES; do
     if [ -n "$OG_IMAGE_PATH" ]; then
       OG_IMAGE_LOCAL=$(echo "$OG_IMAGE_PATH" | sed -E 's#^https?://[^/]+##')
       if [ ! -f "$DIST$OG_IMAGE_LOCAL" ]; then
-        echo "ISSUE:$REL:og_image_broken:og:image points to $OG_IMAGE_PATH — file not found in dist/"
+        echo "ISSUE:$REL:og_image_broken:og:image points to $OG_IMAGE_PATH - file not found in dist/"
       fi
     fi
   fi
@@ -159,7 +159,7 @@ for PAGE in $PAGES; do
   H2_COUNT=$(echo "$CONTENT" | grep -c '<h2' || true)
   H3_COUNT=$(echo "$CONTENT" | grep -c '<h3' || true)
   if [ "$H3_COUNT" -gt 0 ] && [ "$H2_COUNT" -eq 0 ]; then
-    echo "WARN:$REL:heading_hierarchy:<h3> found without <h2> — skipped heading level"
+    echo "WARN:$REL:heading_hierarchy:<h3> found without <h2> - skipped heading level"
   fi
 
   # ── Structured data / JSON-LD ──────────────────────────────
@@ -191,7 +191,7 @@ for PAGE in $PAGES; do
   # ── Favicon ─────────────────────────────────────────────────
   FAVICON=$(echo "$CONTENT" | grep -c 'rel="icon"' || true)
   if [ "$FAVICON" -eq 0 ]; then
-    echo "ISSUE:$REL:favicon_missing:No <link rel=\"icon\"> found — see design-expert's generate-favicon.py"
+    echo "ISSUE:$REL:favicon_missing:No <link rel=\"icon\"> found - see design-expert's generate-favicon.py"
   fi
 
   # ── Semantic landmarks ─────────────────────────────────────
@@ -215,7 +215,7 @@ for PAGE in $PAGES; do
   # ── Word count estimate ────────────────────────────────────
   WORD_COUNT=$(echo "$CONTENT" | sed 's/<[^>]*>//g' | wc -w | tr -d ' ')
   if [ "$WORD_COUNT" -lt 300 ]; then
-    echo "WARN:$REL:thin_content:~${WORD_COUNT} words (thin page — <300)"
+    echo "WARN:$REL:thin_content:~${WORD_COUNT} words (thin page - <300)"
   else
     echo "OK:$REL:word_count:~${WORD_COUNT} words"
   fi
@@ -236,7 +236,7 @@ done
 if [ -f "$DIST/robots.txt" ]; then
   echo "OK:site:robots_txt:Found website/dist/robots.txt"
   if grep -qE "^Disallow:[[:space:]]*/[[:space:]]*$" "$DIST/robots.txt" 2>/dev/null; then
-    echo "ISSUE:site:robots_blocking:robots.txt contains Disallow: / — may block all crawling"
+    echo "ISSUE:site:robots_blocking:robots.txt contains Disallow: / - may block all crawling"
   fi
 else
   echo "ISSUE:site:robots_txt_missing:No robots.txt in website/dist/"

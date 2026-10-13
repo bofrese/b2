@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-stale.sh — detect stale .md files that need sync, and stale theme files
+# check-stale.sh - detect stale .md files that need sync, and stale theme files
 # Outputs:
 #   "item:/abs/path/to/file.md"  for each stale content item
 #   "index:{type}"               for each stale index file
@@ -17,7 +17,7 @@ find "$root/website/src" -name "*.md" 2>/dev/null | while read md; do
   fi
 done
 
-# Index files — check each content type with Index: yes
+# Index files - check each content type with Index: yes
 content_types="$root/website/docs/content-types.md"
 if [ -f "$content_types" ]; then
   # Extract type names (lines starting with "## " that are not "## page")
@@ -42,7 +42,7 @@ if [ -f "$content_types" ]; then
   done < "$content_types"
 fi
 
-# Theme files — check if any CSS/JS/HTML (excluding mockup.html) are newer than their dist/ copies
+# Theme files - check if any CSS/JS/HTML (excluding mockup.html) are newer than their dist/ copies
 theme_name="b2"
 cfg="$root/website/b2.cfg"
 [ -f "$cfg" ] && theme_name=$(grep '^THEME=' "$cfg" | cut -d= -f2 | tr -d '[:space:]')

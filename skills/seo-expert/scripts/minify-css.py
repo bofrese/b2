@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-minify-css.py — Safe, dependency-free CSS minifier for b2's build step.
+minify-css.py - Safe, dependency-free CSS minifier for b2's build step.
 
 Strips comments, collapses whitespace, trims redundant whitespace around
-punctuation. No third-party dependencies (pure stdlib) — b2 must not assume
+punctuation. No third-party dependencies (pure stdlib) - b2 must not assume
 Node/npm are available in the user's environment. CSS has no regex-literal or
 template-literal ambiguity, so full comment/whitespace stripping is safe here
-(unlike JS — see minify-js.py for why that one is deliberately conservative).
+(unlike JS - see minify-js.py for why that one is deliberately conservative).
 
 Usage:
   python3 minify-css.py <input.css> <output.css>
@@ -25,7 +25,7 @@ def minify_css(css):
     css = re.sub(r'\s+', ' ', css)
     # Trim whitespace around punctuation that never needs it.
     css = re.sub(r'\s*([{}:;,])\s*', r'\1', css)
-    # Drop the trailing semicolon before a closing brace — redundant.
+    # Drop the trailing semicolon before a closing brace - redundant.
     css = re.sub(r';}', '}', css)
     return css.strip()
 

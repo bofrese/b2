@@ -5,7 +5,7 @@
 # Usage: audit-typography.sh <path-to-dist-index.html>
 #
 # Read the output looking for the same semantic role (e.g. "paragraph under a
-# headline") expressed as several slightly different clamp()/rem values — that's
+# headline") expressed as several slightly different clamp()/rem values - that's
 # the signal a reusable token is missing, not that the content genuinely needs
 # that many distinct sizes. See references/typography-audit.md for what to do
 # with the findings.
@@ -36,5 +36,5 @@ echo "=== Summary ==="
 echo "$TOTAL distinct inline font-size declarations found."
 echo "If this number is large relative to the deck's documented type-scale roles"
 echo "(check the theme's design.md Typography System table), most are probably"
-echo "unintentional near-duplicates of a small number of real roles — see"
+echo "unintentional near-duplicates of a small number of real roles - see"
 echo "references/typography-audit.md for how to consolidate them into tokens."

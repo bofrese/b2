@@ -1,6 +1,6 @@
 # Create Workflow
 
-There are four phases. Do not skip ahead. Generate markdown only when the idea is concrete — not before.
+There are four phases. Do not skip ahead. Generate markdown only when the idea is concrete - not before.
 
 ---
 
@@ -13,7 +13,7 @@ Before saying anything, read any of these that exist (Read tool, skip silently i
 - `docs/product/vision.md`
 - `docs/product/website-design-brief.md` (fall back to `docs/product/design-brief.md`)
 - `docs/product/personas.md`
-- `docs/notes/README.md` — if found, scan for relevant category files and read those too
+- `docs/notes/README.md` - if found, scan for relevant category files and read those too
 
 Do not mention this step. Use what is found to skip redundant questions or probe deeper where docs give partial answers.
 
@@ -21,9 +21,9 @@ Do not mention this step. Use what is found to skip redundant questions or probe
 
 Ask three things (one message):
 
-1. **The occasion** — "What's the context? Conference talk, internal team, investor pitch, client workshop — what are we building for?"
-2. **Duration** — "How long do you have?"
-3. **Background material** — "Any material I should start from? URLs, files, notes, an earlier draft — throw it at me."
+1. **The occasion** - "What's the context? Conference talk, internal team, investor pitch, client workshop - what are we building for?"
+2. **Duration** - "How long do you have?"
+3. **Background material** - "Any material I should start from? URLs, files, notes, an earlier draft - throw it at me."
 
 ### Harvest material
 
@@ -33,10 +33,10 @@ Ask three things (one message):
 
 Anything substantial (research notes, a rough draft, competitor decks) goes into
 `docs/presentations/{slug}/work.md` once the slug is known (see Phase 4) rather than being folded
-straight into the deck — keeps working material separate from the polished markdown, same
+straight into the deck - keeps working material separate from the polished markdown, same
 separation `/b2:talk` keeps from `docs/product/vision.md`.
 
-After harvesting, give a brief inventory — what exists and what's missing:
+After harvesting, give a brief inventory - what exists and what's missing:
 
 > "Here's what I'm working with: a product vision (clear on audience, vague on the villain), a design brief (strong visual language), no personas. A few things to probe before we structure this..."
 
@@ -62,20 +62,20 @@ From the confirmed synthesis, propose a slide-by-slide arc in this format:
 **Working title: [title]**
 Duration: ~[N] slides / [N] minutes
 
-1. **[Slide name]** — [one line: what this slide does, not what's on it]
-2. **[Slide name]** — [...]
+1. **[Slide name]** - [one line: what this slide does, not what's on it]
+2. **[Slide name]** - [...]
 ...
 
 ---
 Opening words: "[proposed first sentence]"
-Closing words: "[proposed last sentence — echoes the opening]"
+Closing words: "[proposed last sentence - echoes the opening]"
 ```
 
 Then ask: "What's wrong with this order? What's missing? What's in the wrong place?"
 
 Ordering rules:
 - Slide names are active claims, not labels.
-- The enemy appears before the solution — tension before resolution.
+- The enemy appears before the solution - tension before resolution.
 - The proof comes after the audience understands what's at stake.
 - The CTA is last. The close echoes the open.
 - Minimum viable slide count. More slides is not more persuasion.
@@ -92,7 +92,7 @@ Ask:
 - Filename slug (or derive from title: lowercase, hyphens, no special chars)
 - Transition style (default: `slide`)
 
-Do not ask about theme here — theme resolution happens automatically below, after the file exists.
+Do not ask about theme here - theme resolution happens automatically below, after the file exists.
 
 Run:
 ```bash
@@ -104,7 +104,7 @@ If Phase 1 collected working material not directly used in the deck, write it to
 
 ### Write the file
 
-Read `references/slide-format.md` now. Follow all rules there for titles, body content, visual comments, and presenter notes. Leave `theme:` frontmatter unset for now — the theme-resolution step below fills it in.
+Read `references/slide-format.md` now. Follow all rules there for titles, body content, visual comments, and presenter notes. Leave `theme:` frontmatter unset for now - the theme-resolution step below fills it in.
 
 Write to `docs/presentations/{slug}/{slug}.md`.
 
@@ -114,7 +114,7 @@ Tell the user the file path. Then:
 
 > "Read through the flow. What's not right? What's missing, weak, or in the wrong place?"
 
-Iterate — rewrite individual slides, reorder, cut, or add — until the user says it's done. The goal: a file that could be handed to an AI image generator and a speaker and produce a great presentation.
+Iterate - rewrite individual slides, reorder, cut, or add - until the user says it's done. The goal: a file that could be handed to an AI image generator and a speaker and produce a great presentation.
 
 ### Theme resolution
 

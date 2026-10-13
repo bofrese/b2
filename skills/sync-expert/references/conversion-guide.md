@@ -1,4 +1,4 @@
-# Sync Expert — Conversion Guide
+# Sync Expert - Conversion Guide
 
 Detailed HTML generation rules for item conversion and index generation.
 
@@ -6,11 +6,11 @@ Detailed HTML generation rules for item conversion and index generation.
 
 ## Using Mockup HTML as a Layout Reference
 
-`website/theme/{THEME}/mockup.html` is the approved design concept — the user's chosen visual direction. Use it as a compositional guide when generating partials.
+`website/theme/{THEME}/mockup.html` is the approved design concept - the user's chosen visual direction. Use it as a compositional guide when generating partials.
 
 **What `components.md` tells you:** which CSS classes exist and what they're for.
 
-**What the mockup HTML tells you:** how those classes compose into actual sections — which elements nest inside which, how sections relate to each other, what the overall page rhythm looks like.
+**What the mockup HTML tells you:** how those classes compose into actual sections - which elements nest inside which, how sections relate to each other, what the overall page rhythm looks like.
 
 **When generating a partial:**
 1. Look at `components.md` for the available class vocabulary
@@ -19,7 +19,7 @@ Detailed HTML generation rules for item conversion and index generation.
 
 **Example:** If `components.md` lists `.content-block` and `.content-block--alt`, the mockup shows whether they alternate (dark/light/dark/light), how much content each contains, and what modifiers are used where. That's the context `components.md` alone doesn't give you.
 
-**If the mockup is large:** The sync-expert SKILL.md instructs extracting only section-level structure. Use that extracted structure — outer nesting + class names per section — as your composition reference.
+**If the mockup is large:** The sync-expert SKILL.md instructs extracting only section-level structure. Use that extracted structure - outer nesting + class names per section - as your composition reference.
 
 **If no mockup exists** (design not yet done): rely on `components.md` and content-types.md layout specs only.
 
@@ -29,13 +29,13 @@ Detailed HTML generation rules for item conversion and index generation.
 
 ### Semantic Classes Only
 
-Every class used for **standard content** must be listed in `website/theme/{THEME}/components.md`. Do not invent class names for ordinary sections — use the closest matching existing class. The exception is a genuinely new bespoke component (see "Bespoke / high-craft pages"): register it in `components.md` + `styles.css` rather than forcing it into an ill-fitting existing class.
+Every class used for **standard content** must be listed in `website/theme/{THEME}/components.md`. Do not invent class names for ordinary sections - use the closest matching existing class. The exception is a genuinely new bespoke component (see "Bespoke / high-craft pages"): register it in `components.md` + `styles.css` rather than forcing it into an ill-fitting existing class.
 
 Check `components.md` before generating HTML. Group your class usage by context (shared, per-type, index) to match the components.md structure.
 
 ### Choose the Right Form, Not the Nearest One
 
-Before reaching for a code block (`<pre>`/`.terminal`): is this content something the user would literally type or read as terminal output? If not — a file listing, a data flow, a comparison, a sequence of named stages — it deserves a purpose-built component, not code-block styling borrowed because it was already in the vocabulary. Check `components.md` for an existing fit first; if none exists, this is a genuine "Extending the Theme" case (below), not a reason to fall back to `<pre>`. An experienced designer picks the form that matches the content's actual shape — a file tree looks like a file tree, not like a terminal transcript.
+Before reaching for a code block (`<pre>`/`.terminal`): is this content something the user would literally type or read as terminal output? If not - a file listing, a data flow, a comparison, a sequence of named stages - it deserves a purpose-built component, not code-block styling borrowed because it was already in the vocabulary. Check `components.md` for an existing fit first; if none exists, this is a genuine "Extending the Theme" case (below), not a reason to fall back to `<pre>`. An experienced designer picks the form that matches the content's actual shape - a file tree looks like a file tree, not like a terminal transcript.
 
 ### No Visual Styles
 
@@ -48,29 +48,29 @@ All visual styling lives in `website/theme/{THEME}/styles.css`.
 
 ### No Document Shell
 
-Generated HTML is a fragment — it will be wrapped by the Makefile with header.html and footer.html.
+Generated HTML is a fragment - it will be wrapped by the Makefile with header.html and footer.html.
 
 - ✗ `<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`, `<header>`, `<footer>`
 - ✓ Content sections only, starting with the first meaningful content element
 
-### Image Tags — Required Attributes
+### Image Tags - Required Attributes
 
 Every generated `<img>` must carry:
-- `width` and `height` matching the actual source file's pixel dimensions (prevents layout shift) — check the real file, don't guess
-- `loading="lazy"` — except the first meaningful image on the page (typically the hero), which gets `loading="eager" fetchpriority="high"` instead since it's the likely LCP element
+- `width` and `height` matching the actual source file's pixel dimensions (prevents layout shift) - check the real file, don't guess
+- `loading="lazy"` - except the first meaningful image on the page (typically the hero), which gets `loading="eager" fetchpriority="high"` instead since it's the likely LCP element
 
 ### Bespoke / high-craft pages
 
-The two rules above (semantic classes, no visual styles) are the **default** and the backbone of theme-swappability — follow them for standard content. But b2 pages are allowed to be hand-crafted and visually rich (see the product vision, "hand-crafted pages, surgically maintained"). When a page needs a bespoke interactive element the base vocabulary can't express — an animated hero, a scroll-told section, a Three.js/canvas mount, a WebGL background — support it as follows, in order of preference:
+The two rules above (semantic classes, no visual styles) are the **default** and the backbone of theme-swappability - follow them for standard content. But b2 pages are allowed to be hand-crafted and visually rich (see the product vision, "hand-crafted pages, surgically maintained"). When a page needs a bespoke interactive element the base vocabulary can't express - an animated hero, a scroll-told section, a Three.js/canvas mount, a WebGL background - support it as follows, in order of preference:
 
 1. **Register it as a component (preferred).** Add the new semantic classes to `components.md`, its CSS to `styles.css`, and any driving JS to the theme's `scripts.js` (or a vendored library loaded from `header.html`). The partial then carries the structure + a mount element (e.g. `<div class="webgl-hero" id="hero-canvas">`). This keeps separation and theme-swappability, and lets other pages reuse the effect. This is the extend-the-theme path (below).
-2. **One-off escape hatch.** For a genuinely unique, non-reusable effect, the partial may carry its own scoped `<style>` / `<script>` block and hook IDs. This trades theme-swappability for that one page — use it deliberately, not by default.
+2. **One-off escape hatch.** For a genuinely unique, non-reusable effect, the partial may carry its own scoped `<style>` / `<script>` block and hook IDs. This trades theme-swappability for that one page - use it deliberately, not by default.
 
-Either way, the libraries and fonts the effect needs live in the theme (`header.html` CDN/vendored, `scripts.js`), so they load site-wide. Never strip a page's bespoke markup, hook IDs, or scoped effect blocks during a re-sync — they are intentional craft (see "Handling Existing Partials").
+Either way, the libraries and fonts the effect needs live in the theme (`header.html` CDN/vendored, `scripts.js`), so they load site-wide. Never strip a page's bespoke markup, hook IDs, or scoped effect blocks during a re-sync - they are intentional craft (see "Handling Existing Partials").
 
 ---
 
-## Item Conversion — Structure
+## Item Conversion - Structure
 
 Map markdown content to semantic HTML sections using the type's "Default layout" from `content-types.md`.
 
@@ -119,7 +119,7 @@ Pages come in two sub-types. Read `content-types.md` to confirm which applies. T
 
 **Entry point pages** (e.g., index.md, how-it-works.md): Start with `.hero` + `.hero__mascot-panel`. Then content sections. Never entry-point a destination page.
 
-**Destination pages** (e.g., about.md, docs.md, showcase.md): Start with `.page-hero` — NOT `.hero`, NOT raw content. Then `.content-block` / `.content-block--alt` alternating sections.
+**Destination pages** (e.g., about.md, docs.md, showcase.md): Start with `.page-hero` - NOT `.hero`, NOT raw content. Then `.content-block` / `.content-block--alt` alternating sections.
 
 The `page-hero` eyebrow is the page name ("Documentation", "About"). The `page-hero__title` is a short punchy claim with one `<em>` for blue emphasis. The subtitle is one sentence.
 
@@ -170,7 +170,7 @@ The `page-hero` eyebrow is the page name ("Documentation", "About"). The `page-h
 
 ---
 
-## Index Generation — Structure
+## Index Generation - Structure
 
 Index files aggregate frontmatter from all items in the type's folder and present a listing.
 
@@ -226,25 +226,25 @@ Read all `website/src/posts/*.md` files. Extract frontmatter. Sort by `date` des
 
 ## Derived Teaser Sections (optional, project-declared)
 
-Some pages embed a short, reordered subset of another content type's items — most commonly a homepage teaser of a few showcase/portfolio/post items, restyled and abbreviated for a denser context. Left unmanaged, this is a silent duplication trap: the teaser is hand-authored once, the source type gets edited or reordered later, and nothing re-derives the teaser — it just quietly goes stale.
+Some pages embed a short, reordered subset of another content type's items - most commonly a homepage teaser of a few showcase/portfolio/post items, restyled and abbreviated for a denser context. Left unmanaged, this is a silent duplication trap: the teaser is hand-authored once, the source type gets edited or reordered later, and nothing re-derives the teaser - it just quietly goes stale.
 
-This mechanism is **opt-in and fully project-declared** — nothing in this plugin knows what "showcase" or "homepage" mean. A project turns it on by adding a `Feeds:` line under the *source* type's entry in its own `website/docs/content-types.md`:
+This mechanism is **opt-in and fully project-declared** - nothing in this plugin knows what "showcase" or "homepage" mean. A project turns it on by adding a `Feeds:` line under the *source* type's entry in its own `website/docs/content-types.md`:
 
 ```
 ## showcase
 Path: src/showcase.md
 ...
-Item fields: name, url, screenshot, tag, teaser (short one-liner — see Feeds), full description
+Item fields: name, url, screenshot, tag, teaser (short one-liner - see Feeds), full description
 Feeds: src/index.md → .showcase-grid section (first 4 items, this page's current order; use each item's `teaser` field instead of the full description)
 ```
 
 **Reading a `Feeds:` declaration:**
-- **Source** — the type this line lives under. Its current items and their order are the source of truth.
-- **Target** — the page and section named after `→`. Only that section is regenerated; the rest of the target page's partial is left untouched (same surgical-integration principle as any other partial edit).
-- **Selection** — which items and how many (e.g. "first 4, source order"). Re-derive this every time, don't cache a prior selection.
-- **Field mapping** — which source fields populate the target markup, and any target-specific field (like a short `teaser` one-liner) that exists precisely so the dense teaser context doesn't have to reuse the source's full-length copy verbatim.
+- **Source** - the type this line lives under. Its current items and their order are the source of truth.
+- **Target** - the page and section named after `→`. Only that section is regenerated; the rest of the target page's partial is left untouched (same surgical-integration principle as any other partial edit).
+- **Selection** - which items and how many (e.g. "first 4, source order"). Re-derive this every time, don't cache a prior selection.
+- **Field mapping** - which source fields populate the target markup, and any target-specific field (like a short `teaser` one-liner) that exists precisely so the dense teaser context doesn't have to reuse the source's full-length copy verbatim.
 
-**Generating the target section:** use the *target* page's existing component for that section (e.g. `.showcase-grid` / `.showcase-card`, distinct from the source page's own listing component) — a derived teaser and its source almost always want different density, so they should already be on different classes in `components.md`. Populate it with the selected items in the declared order, using the declared field mapping. Do not touch any other section of the target page's partial.
+**Generating the target section:** use the *target* page's existing component for that section (e.g. `.showcase-grid` / `.showcase-card`, distinct from the source page's own listing component) - a derived teaser and its source almost always want different density, so they should already be on different classes in `components.md`. Populate it with the selected items in the declared order, using the declared field mapping. Do not touch any other section of the target page's partial.
 
 `Step 1c` in `SKILL.md` covers when this makes a page stale even though its own `.md` didn't change.
 
@@ -252,14 +252,14 @@ Feeds: src/index.md → .showcase-grid section (first 4 items, this page's curre
 
 ## URL Slug Generation
 
-Derive the URL path for index links from the filename. **Include the `.html` extension** — Apache httpd and `python3 -m http.server` serve flat `.html` files and do not auto-resolve extensionless URLs:
+Derive the URL path for index links from the filename. **Include the `.html` extension** - Apache httpd and `python3 -m http.server` serve flat `.html` files and do not auto-resolve extensionless URLs:
 
 - `website/src/posts/my-first-post.md` → href `/posts/my-first-post.html`
 - `website/src/products/blue-widget.md` → href `/products/blue-widget.html`
 
-Exception: the site root (`/`) maps to `index.html` by Apache's DirectoryIndex — use `/` not `/index.html` for home links.
+Exception: the site root (`/`) maps to `index.html` by Apache's DirectoryIndex - use `/` not `/index.html` for home links.
 
-**Link to the most specific anchor available.** When a link references a specific named item on another page — a command, a FAQ entry, a numbered step — rather than the page or section in general, link to that item's own anchor if the target page defines one, not the enclosing section's anchor. If the target item has no anchor yet, that's a signal the target page's convention needs one — flag it rather than settling for the nearest parent anchor.
+**Link to the most specific anchor available.** When a link references a specific named item on another page - a command, a FAQ entry, a numbered step - rather than the page or section in general, link to that item's own anchor if the target page defines one, not the enclosing section's anchor. If the target item has no anchor yet, that's a signal the target page's convention needs one - flag it rather than settling for the nearest parent anchor.
 
 ---
 
@@ -285,17 +285,17 @@ When a partial already exists (from a previous sync or manual edit):
 4. Preserve the HTML structure and semantic class choices
 5. Do not reset to a "pristine" AI output
 
-The goal is surgical content updates, not wholesale regeneration. Only regenerate from scratch if the existing HTML is genuinely malformed. Bespoke effect blocks, hook IDs, scoped one-off `<style>`/`<script>`, and registered bespoke classes are intentional craft — preserve them; do not treat them as errors to reset.
+The goal is surgical content updates, not wholesale regeneration. Only regenerate from scratch if the existing HTML is genuinely malformed. Bespoke effect blocks, hook IDs, scoped one-off `<style>`/`<script>`, and registered bespoke classes are intentional craft - preserve them; do not treat them as errors to reset.
 
-**Orphaned sections:** "preserve structure" means preserve structure for content that still exists in the current source — not retain a partial's section indefinitely once its source paragraph/list/reference is gone. Before finishing a re-sync, check each existing top-level section in the partial against the current `.md`: if a section has no plausible corresponding content in the new source at all (not just reworded — genuinely absent), remove it rather than carrying it forward as an orphan. Bespoke partial-only additions (a pull-quote, a compare-figure) are the deliberate exception — those exist to serve source content that *is* still present, not to persist independently of it.
+**Orphaned sections:** "preserve structure" means preserve structure for content that still exists in the current source - not retain a partial's section indefinitely once its source paragraph/list/reference is gone. Before finishing a re-sync, check each existing top-level section in the partial against the current `.md`: if a section has no plausible corresponding content in the new source at all (not just reworded - genuinely absent), remove it rather than carrying it forward as an orphan. Bespoke partial-only additions (a pull-quote, a compare-figure) are the deliberate exception - those exist to serve source content that *is* still present, not to persist independently of it.
 
-### Redesign — new theme vocabulary
+### Redesign - new theme vocabulary
 
 On a redesign a new theme was generated, so `components.md` changed while the content `.md` did not. Re-evaluate every existing partial against the new `components.md`, using its `## Redesign delta` (Reused / New / Dropped-or-renamed) and the new `mockup.html` composition:
 
-- **All the partial's classes still exist (reused):** keep it as-is — apply content updates only if the `.md` also changed. Reused semantic names are exactly what lets pages carry over untouched.
+- **All the partial's classes still exist (reused):** keep it as-is - apply content updates only if the `.md` also changed. Reused semantic names are exactly what lets pages carry over untouched.
 - **Some classes were renamed:** remap old → new class names; preserve structure and content.
-- **Classes were dropped, or the design paradigm changed for that section:** redo the affected sections against the new mockup composition and vocabulary. A genuinely different design (new grid, new hero paradigm) may warrant rebuilding the partial's structure, not just renaming — re-evaluate, don't force old structure into the new design.
+- **Classes were dropped, or the design paradigm changed for that section:** redo the affected sections against the new mockup composition and vocabulary. A genuinely different design (new grid, new hero paradigm) may warrant rebuilding the partial's structure, not just renaming - re-evaluate, don't force old structure into the new design.
 - Preserve any bespoke/registered per-page components whose classes survive.
 
 Reuse where the vocabulary carried over; redo where it changed. A theme swap stays cheap when names were reused, without blocking a bold redesign that needs new structure.
@@ -304,16 +304,16 @@ Reuse where the vocabulary carried over; redo where it changed. A theme swap sta
 
 ## Extending the Theme
 
-Only extend the theme when no existing class in `components.md` fits the semantic need. Do not extend for visual variation — use existing modifier classes (`--alt`, `--primary`, etc.). Do extend for genuinely new structural patterns (a new content type section, a component that doesn't exist in the theme at all).
+Only extend the theme when no existing class in `components.md` fits the semantic need. Do not extend for visual variation - use existing modifier classes (`--alt`, `--primary`, etc.). Do extend for genuinely new structural patterns (a new content type section, a component that doesn't exist in the theme at all).
 
 **When to extend:**
 - Content type has a layout requirement with no matching component (e.g., a gallery grid, a comparison table, a timeline)
-- The new component is structurally distinct — not a visual variant of an existing one
-- A page needs a bespoke interactive/animated/3D element (animated hero, scroll-told section, canvas/WebGL mount) — register it as a component with its CSS in `styles.css` and driving JS in the theme's `scripts.js` (or a vendored library), so it is preserved and reusable
+- The new component is structurally distinct - not a visual variant of an existing one
+- A page needs a bespoke interactive/animated/3D element (animated hero, scroll-told section, canvas/WebGL mount) - register it as a component with its CSS in `styles.css` and driving JS in the theme's `scripts.js` (or a vendored library), so it is preserved and reusable
 
 **When NOT to extend:**
-- A different colour or size is needed — use modifier classes or inline style
-- The component already exists under a slightly different name — use the existing class and note it
+- A different colour or size is needed - use modifier classes or inline style
+- The component already exists under a slightly different name - use the existing class and note it
 
 **How to extend (sync-expert Step 5):**
 1. Name the new class semantically (`.gallery-grid`, not `.flex-container`)

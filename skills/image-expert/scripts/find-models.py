@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-b2 — list available Gemini image-capable models
+b2 - list available Gemini image-capable models
 Usage: python3 find-models.py
 API key: .env file → GEMINI_API_KEY env var
 Output: one model ID per line (without the 'models/' prefix), ready to pass to generate.py
@@ -39,5 +39,5 @@ with urllib.request.urlopen(url) as r:
 for m in data.get("models", []):
     name = m.get("name", "")
     if "image" in name.lower() or "imagen" in name.lower():
-        # Strip 'models/' prefix — generate.py constructs its own URL
+        # Strip 'models/' prefix - generate.py constructs its own URL
         print(name.removeprefix("models/"))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-b2 — check whether GEMINI_API_KEY is available
+b2 - check whether GEMINI_API_KEY is available
 Checks: .env file → GEMINI_API_KEY environment variable
 Exit code: 0 if found, 1 if missing
 Stdout: OK:<source> or MISSING

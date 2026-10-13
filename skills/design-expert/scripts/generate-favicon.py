@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-generate-favicon.py — Generate a full favicon set from the site's own brand
+generate-favicon.py - Generate a full favicon set from the site's own brand
 mark, so the browser tab/bookmark/home-screen icon matches the nav logo
 exactly rather than being a separate, uncoordinated asset.
 
-Two ways to source the mark (the caller decides which fits the theme — this
+Two ways to source the mark (the caller decides which fits the theme - this
 script does not guess, since brand-mark markup varies too much to detect
 reliably across arbitrary themes):
 
@@ -12,14 +12,14 @@ reliably across arbitrary themes):
        --image path/to/logo.png
 
   2. A CSS text badge (the common b2 pattern: a rounded-corner color chip with
-     bold text, e.g. a `.brandmark` class — background color + text + font +
+     bold text, e.g. a `.brandmark` class - background color + text + font +
      corner radius, all already defined in the theme's header.html/styles.css):
        --text "B2" --bg "#E8531D" [--fg "#FFFFFF"] [--font path/to/font.ttf] [--radius 28]
 
      --radius is a percentage of the icon size (28 matches a typical
      ~12px-radius-on-40px chip). --font accepts .ttf/.otf; if omitted, falls
      back to a system sans-serif bold (Arial/Helvetica) since a self-hosted
-     display font may not exist yet at design time — using the wrong font at
+     display font may not exist yet at design time - using the wrong font at
      favicon size is a much smaller problem than blocking on font setup.
 
 Output: favicon.ico (16/32/48 bundled) + favicon-16.png + favicon-32.png +
@@ -116,7 +116,7 @@ def main():
     if args.text:
         font_path = args.font or find_fallback_font()
         if not font_path:
-            print("ERROR:no_font:pass --font <path> — no system fallback font found")
+            print("ERROR:no_font:pass --font <path> - no system fallback font found")
             sys.exit(1)
         bg = hex_to_rgb(args.bg)
         fg = hex_to_rgb(args.fg)

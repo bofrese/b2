@@ -1,4 +1,4 @@
-# Gemini API Key — Setup Guide
+# Gemini API Key - Setup Guide
 
 Load this reference only when `check-api-key.py` returns `MISSING`.
 
@@ -10,19 +10,19 @@ Load this reference only when `check-api-key.py` returns `MISSING`.
 >
 > A free Google AI Studio key is required (no credit card, 500 images/day).
 >
-> **Step 1 — Get the key:**
+> **Step 1 - Get the key:**
 > Open https://aistudio.google.com/apikey, sign in with a Google account, create an API key, and copy it.
 >
-> **Step 2 — Save it (choose one):**
+> **Step 2 - Save it (choose one):**
 >
-> **Option A — `.env` file** (project-specific, not committed to git):
+> **Option A - `.env` file** (project-specific, not committed to git):
 > Create or open `.env` in the project root and add:
 > ```
 > GEMINI_API_KEY=your_key_here
 > ```
 > Make sure `.env` is in your `.gitignore` (it usually is by default).
 >
-> **Option B — Environment variable** (global, works across all projects):
+> **Option B - Environment variable** (global, works across all projects):
 > Add to `~/.zshrc` or `~/.bashrc`:
 > ```
 > export GEMINI_API_KEY=your_key_here

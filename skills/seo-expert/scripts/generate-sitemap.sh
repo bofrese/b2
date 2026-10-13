@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# generate-sitemap.sh — Generate sitemap.xml and robots.txt for a b2 site
+# generate-sitemap.sh - Generate sitemap.xml and robots.txt for a b2 site
 # Usage: bash generate-sitemap.sh <base_url>
 # Example: bash generate-sitemap.sh https://example.com
 # Reads: website/dist/*.html (recursively)
@@ -20,7 +20,7 @@ fi
 BASE_URL="${BASE_URL%/}"
 
 if [ ! -d "$DIST" ]; then
-  echo "ERROR: website/dist/ not found — run /b2:build first"
+  echo "ERROR: website/dist/ not found - run /b2:build first"
   exit 1
 fi
 
@@ -45,7 +45,7 @@ find "$DIST" -name "*.html" | sort | while read -r PAGE; do
     continue
   fi
 
-  # Determine URL path — b2 serves flat .html files, not pretty directory URLs
+  # Determine URL path - b2 serves flat .html files, not pretty directory URLs
   if [ "$REL" = "index.html" ]; then
     URL_PATH="/"
     PRIORITY="1.0"
@@ -83,7 +83,7 @@ echo "</urlset>" >> "$SITEMAP"
 echo "WRITTEN:sitemap:$SITEMAP"
 
 # ────────────────────────────────────────────────────────────
-# robots.txt — only create if missing
+# robots.txt - only create if missing
 # ────────────────────────────────────────────────────────────
 ROBOTS="$DIST/robots.txt"
 if [ ! -f "$ROBOTS" ]; then

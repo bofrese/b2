@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-minify-js.py — Conservative, dependency-free JS minifier for b2's build step.
+minify-js.py - Conservative, dependency-free JS minifier for b2's build step.
 
 Deliberately NOT a full minifier. Full-scale JS minification requires a real
 parser to disambiguate `/` (division vs regex literal), template literals,
-and string escaping — getting that wrong silently corrupts production code.
+and string escaping - getting that wrong silently corrupts production code.
 b2 must not assume Node/npm are available to reach for a real one (esbuild,
 terser, etc.), so this only does what's safe to do with confidence:
 
   - Remove comments that occupy their OWN line (line/block comments where the
-    entire line, once trimmed, is comment — never comments that share a line
+    entire line, once trimmed, is comment - never comments that share a line
     with real code, since detecting `//` mid-line risks misreading a regex
     literal or a division operator as a comment start).
   - Strip leading indentation and trailing whitespace per line (irrelevant to
-    JS parsing — only newlines matter for ASI, and every original line break
+    JS parsing - only newlines matter for ASI, and every original line break
     is preserved exactly, never merged).
   - Collapse runs of blank lines to one.
 

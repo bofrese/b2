@@ -1,6 +1,6 @@
-# Evaluate — Image Review and Iteration
+# Evaluate - Image Review and Iteration
 
-This phase runs after the user provides an image — whether from the API or an external tool.
+This phase runs after the user provides an image - whether from the API or an external tool.
 
 Track the session state in context (not written to disk):
 - the original approved prompt
@@ -17,22 +17,22 @@ If the image has not yet been provided, prompt:
 > "Drop the image into the chat, or give me the file path."
 
 Accept:
-- **File path** — read with the Read tool (Claude supports PNG, JPG, WebP)
-- **Pasted image** — Claude can see images pasted directly into the conversation
+- **File path** - read with the Read tool (Claude supports PNG, JPG, WebP)
+- **Pasted image** - Claude can see images pasted directly into the conversation
 
 ---
 
 ## Evaluate Against Three Criteria
 
-Assess the image honestly against all three. Be specific — name exactly what works and what doesn't.
+Assess the image honestly against all three. Be specific - name exactly what works and what doesn't.
 
 ### 1. Style Match
 Compare against `docs/product/illustration-style.md`:
-- Medium and rendering — does it match (flat vector, gouache, risograph, etc.)?
-- Colour palette — does it use the right hues and register (muted, warm, saturated)?
-- Line quality — weight and character consistent with the brief?
-- Texture and finish — grain, halftone, smoothness as specified?
-- Mood — does the emotional register match?
+- Medium and rendering - does it match (flat vector, gouache, risograph, etc.)?
+- Colour palette - does it use the right hues and register (muted, warm, saturated)?
+- Line quality - weight and character consistent with the brief?
+- Texture and finish - grain, halftone, smoothness as specified?
+- Mood - does the emotional register match?
 
 ### 2. Compositional Fit
 Assess against the intended use:
@@ -54,15 +54,15 @@ Is the aspect ratio right? Is there enough negative space where needed?
 
 Give a direct assessment. No softening. Examples:
 
-> **Style: ✓ Palette and texture are right — the grain and muted greens match the brief exactly.**
-> **Composition: ✗ The subject is centred — there's no space for a headline. This won't work as a hero.**
+> **Style: ✓ Palette and texture are right - the grain and muted greens match the brief exactly.**
+> **Composition: ✗ The subject is centred - there's no space for a headline. This won't work as a hero.**
 > **Concept: ✓ The metaphor is strong. The figure and the mountain of paper is immediately readable.**
 >
-> **Verdict: Needs revision — composition is the blocker.**
+> **Verdict: Needs revision - composition is the blocker.**
 
 Or if genuinely good:
 
-> **All three criteria met. This is a strong illustration — ready to use.**
+> **All three criteria met. This is a strong illustration - ready to use.**
 
 Then ask the user:
 
@@ -72,17 +72,17 @@ Then ask the user:
 
 ## Iterate
 
-If the image needs revision — either because the user isn't satisfied, or because the evaluation found real problems:
+If the image needs revision - either because the user isn't satisfied, or because the evaluation found real problems:
 
 1. Diagnose the specific failure(s) from the evaluation
 2. Construct an improved prompt that directly addresses them
-3. Explain what changed and why — do not just produce a new prompt without reasoning
+3. Explain what changed and why - do not just produce a new prompt without reasoning
 4. Present the revised prompt using the same format as the original proposal
 5. Return to **Generate the Image** in `illustrate.md`
 
-Iteration limit: there is none — keep going until the user approves or gives up. But if the same problems recur after two iterations, name the pattern:
+Iteration limit: there is none - keep going until the user approves or gives up. But if the same problems recur after two iterations, name the pattern:
 
-> "We've hit the same composition problem twice. This may be a style brief constraint — the brief's flat graphic style naturally centres subjects. Want to try a different approach, or revisit the style?"
+> "We've hit the same composition problem twice. This may be a style brief constraint - the brief's flat graphic style naturally centres subjects. Want to try a different approach, or revisit the style?"
 
 ---
 
@@ -136,7 +136,7 @@ Log the result and finish:
 ```
 
 ```markdown
-## YYYY-MM-DD — [Page or context]
+## YYYY-MM-DD - [Page or context]
 
 | File | Concept | Prompt |
 |------|---------|--------|
@@ -147,8 +147,8 @@ Log the result and finish:
 
 Always ask:
 
-> "The final image differed from the style brief on [specific dimensions — e.g. 'palette was warmer than specified, and we dropped the grain texture']. Should I update `docs/product/illustration-style.md` to reflect what actually worked? This will keep future illustrations consistent with this one."
+> "The final image differed from the style brief on [specific dimensions - e.g. 'palette was warmer than specified, and we dropped the grain texture']. Should I update `docs/product/illustration-style.md` to reflect what actually worked? This will keep future illustrations consistent with this one."
 
-If yes: read the current `docs/product/illustration-style.md`, identify the specific fields that need updating based on what the approved image actually looked like, and propose the exact changes before writing. Do not rewrite the whole document — update only what changed.
+If yes: read the current `docs/product/illustration-style.md`, identify the specific fields that need updating based on what the approved image actually looked like, and propose the exact changes before writing. Do not rewrite the whole document - update only what changed.
 
 Then log and finish as above.

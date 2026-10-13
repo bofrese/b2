@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-create-og-images.py — Auto-generate 1200x630 og:image crops for every page.
+create-og-images.py - Auto-generate 1200x630 og:image crops for every page.
 
 For each partial in website/partials/, finds the first <img src="..."> that references
 a real image file, then creates a 1200x630 center-crop WebP in website/dist/images/.

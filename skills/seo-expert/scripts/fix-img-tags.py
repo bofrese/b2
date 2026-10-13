@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-fix-img-tags.py — Audit and fix <img> tags in b2 partials for CWV/SEO.
+fix-img-tags.py - Audit and fix <img> tags in b2 partials for CWV/SEO.
 
 Usage:
   python3 fix-img-tags.py audit             # report issues only
@@ -18,9 +18,9 @@ Issues flagged but NOT auto-fixed (require human input):
   - Images where dimensions cannot be detected
 
 Reads:
-  website/partials/   — HTML fragments to audit/fix
-  website/src/images/ — source images (dimension detection)
-  website/dist/       — dist images (fallback dimension detection)
+  website/partials/ - HTML fragments to audit/fix
+  website/src/images/ - source images (dimension detection)
+  website/dist/ - dist images (fallback dimension detection)
 """
 
 import os
@@ -120,10 +120,10 @@ def fix_img_tag(attrs: str, is_hero: bool) -> tuple[str, list[str], list[str]]:
     # ── Alt text ──────────────────────────────────────────
     if not has_attr(attrs, "alt"):
         suggestion = suggest_alt(src) if src else "descriptive text here"
-        flags.append(f'missing alt — suggested: "{suggestion}"')
+        flags.append(f'missing alt - suggested: "{suggestion}"')
         # Add empty alt as placeholder so it's valid HTML, but flag it
         new_attrs = new_attrs.rstrip() + f' alt="{suggestion}"'
-        changes.append(f'added alt="{suggestion}" (auto-suggested from filename — review this)')
+        changes.append(f'added alt="{suggestion}" (auto-suggested from filename - review this)')
 
     # ── Width + Height ────────────────────────────────────
     if not has_attr(attrs, "width") or not has_attr(attrs, "height"):
@@ -137,7 +137,7 @@ def fix_img_tag(attrs: str, is_hero: bool) -> tuple[str, list[str], list[str]]:
                 new_attrs = new_attrs.rstrip() + f' height="{h}"'
                 changes.append(f'added height="{h}"')
         else:
-            flags.append("missing width/height — image dimensions could not be detected, add manually")
+            flags.append("missing width/height - image dimensions could not be detected, add manually")
 
     # ── loading attribute ─────────────────────────────────
     if not has_attr(attrs, "loading"):
@@ -151,12 +151,12 @@ def fix_img_tag(attrs: str, is_hero: bool) -> tuple[str, list[str], list[str]]:
     # ── fetchpriority on hero ─────────────────────────────
     if is_hero and not has_attr(attrs, "fetchpriority"):
         new_attrs = new_attrs.rstrip() + ' fetchpriority="high"'
-        changes.append('added fetchpriority="high" (hero image — improves LCP)')
+        changes.append('added fetchpriority="high" (hero image - improves LCP)')
 
     # ── WebP upgrade suggestion ───────────────────────────
     if src and not src.endswith(".webp"):
         if webp_exists(src):
-            flags.append(f"WebP version exists — consider <picture> with WebP source")
+            flags.append(f"WebP version exists - consider <picture> with WebP source")
 
     return new_attrs, changes, flags
 
@@ -194,7 +194,7 @@ def process_partial(path: Path) -> dict:
 
 # ── Main ───────────────────────────────────────────────────
 if not PARTIALS_DIR.exists():
-    print("ERROR:partials_missing:website/partials/ not found — run /b2:build first")
+    print("ERROR:partials_missing:website/partials/ not found - run /b2:build first")
     sys.exit(1)
 
 partials = sorted(PARTIALS_DIR.rglob("*.html"))
