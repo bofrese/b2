@@ -1,6 +1,6 @@
 ---
 name: illustrate-expert
-description: This skill should be used when the user runs "/b2:illustrate", asks to "illustrate this", "create an illustration for", "make images for this article", "illustrate this page", "generate illustrations", or "create artwork for". Reads site docs, establishes an illustration style brief on first use, then generates world-class image prompts - and either produces images via the Gemini API (if a key is configured) or presents ready-to-paste prompts for external tools. For website illustrations, blog post headers, and editorial artwork.
+description: This skill should be used when the user runs "/b2:illustrate", asks to "illustrate this", "create an illustration for", "make images for this article", "illustrate this page", "generate illustrations", or "create artwork for". Reads site docs, establishes an illustration style brief on first use, then generates world-class image prompts - and either produces images via the Gemini API (if a key is configured) or the Codex CLI (if installed, with reference images attached), or presents ready-to-paste prompts for external tools. For website illustrations, blog post headers, and editorial artwork.
 ---
 
 # b2 Illustrate

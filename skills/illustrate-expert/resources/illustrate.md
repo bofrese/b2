@@ -45,20 +45,22 @@ Do not proceed to generation without explicit approval of at least one prompt.
 
 ## Generate the Image
 
-### Check for API key
+### Choose a generator
+
+Check what is available, in this order:
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/image-expert/scripts/check-api-key.py"
+command -v codex >/dev/null && codex features list 2>/dev/null | grep -E '^image_generation\s.*true' >/dev/null && echo CODEX_OK || echo CODEX_MISSING
 ```
 
-**If `OK`** - a Gemini API key is available. Ask:
+- **Gemini key `OK`** - offer the API (Option A).
+- **`CODEX_OK`** - offer the Codex CLI (Option B). Codex can attach the project's reference images, which the Gemini script cannot, so prefer Codex when the style brief relies on reference images.
+- Both available - ask which to use. Neither - go to **Present the Prompt**.
 
-> "I found an API key - shall I generate this directly, or would you rather paste the prompt into your preferred tool?"
+Ask before generating:
 
-- **API:** run `generate.py` (see below), then go to **Evaluate**
-- **External tool:** go to **Present the Prompt**
-
-**If `MISSING`** - go straight to **Present the Prompt**
+> "I can generate this directly with [Gemini / Codex], or you can paste the prompt into your preferred tool. Which do you prefer?"
 
 ---
 
@@ -81,7 +83,39 @@ On `SAVED:` output: go to **Evaluate**.
 
 ---
 
-### Option B - Present the Prompt
+### Option B - Generate via Codex CLI
+
+Codex runs as a separate agent with an image generation tool. Write the full prompt to a file, attach every reference image with `-i`, and tell Codex exactly where to save the result.
+
+1. Write the prompt file (outside the build folders, e.g. a scratch or `.tmp` folder). Start the prompt with:
+   ```
+   Generate ONE illustration with your image generation tool and save it as a PNG file at exactly this path (relative to the working directory): {MASTER_PATH}
+   Do not modify any other file. When done, reply with the saved path only.
+
+   N reference images are attached:
+   1. {file} - {its role: style bible / character sheet / primary drawing-and-colour reference (style only, not content)}
+   ...
+   ```
+   Then the approved prompt. Name each reference by file name where the prompt refers to it.
+2. Run it in the background - it takes a few minutes:
+   ```bash
+   codex exec -s workspace-write -C "{project root}" \
+     -i "{reference-1}" -i "{reference-2}" \
+     - < "{prompt file}" > "{log file}" 2>&1
+   ```
+3. When it finishes, check that `{MASTER_PATH}` exists, then go to **Evaluate**.
+
+**Master path:** save the PNG master outside the folder the build copies or converts (for example `docs/product/illustrations/{concept-slug}.png`), then export the web version (WebP at the displayed size, see the style brief) into the site's image folder. If the build converts every PNG in the image folder, a master saved there will overwrite a hand-tuned WebP.
+
+**Iterating:** keep each version (`-v2`, `-v3`) and its prompt file, so the user can compare and you can reuse what worked. Put corrections from the evaluation into the prompt as explicit counter-instructions (e.g. "a previous attempt came out as one uniform brown wash; that is wrong").
+
+**Changing details, keeping the scene:** without a reference, every run produces a new composition. When a version is close and only details must change (a character's role, an expression, a position), attach the previous version as one more `-i` image, list it in the numbered reference list, and say what to keep and what to change: "Image N is the previous version. Keep its composition, setting, colours and all text exactly; change only: ...". Update the count in "N reference images are attached" so it matches the `-i` flags.
+
+**Expressions need size:** a small background figure reads as neutral whatever the prompt says. Put an emotion that matters on a figure that is large in the frame, or let the composition carry the point.
+
+---
+
+### Option C - Present the Prompt
 
 Output the approved prompt clearly formatted for copying, then:
 
